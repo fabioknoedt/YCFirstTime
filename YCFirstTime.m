@@ -68,6 +68,16 @@
 
 /*!
  *  @brief  Execute a block only once per version.
+ *  @param block    The block to be executed.
+ *  @param blockKey The unique name of the block.
+ */
+- (void)executeOncePerVersion:(void (^)())blockOnce forKey:(NSString *)blockKey;
+{
+    [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:TRUE];
+}
+
+/*!
+ *  @brief  Execute a block only once per version.
  *  @param  blockOnce            The block to be executed only once.
  *  @param  blockAfterFirstTime  The block to be executed always.
  *  @param  blockKey             The unique name of the block.
