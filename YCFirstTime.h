@@ -1,6 +1,6 @@
 //
-//  FKFirstTime.h
-//  FKFirstTime
+//  YCFirstTime.h
+//  YU - YUPPIU
 //
 //  Created by Fabio Knoedt on 28/08/14.
 //  Copyright (c) 2014 Fabio Knoedt. All rights reserved.
@@ -8,13 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-@interface FKFirstTime : NSObject
+@interface YCFirstTime : NSObject
 
 /*!
  *  @brief  Singleton instance shared for the app session.
  *  @return the initialized object.
  */
-+ (FKFirstTime *)shared;
++ (YCFirstTime *)shared;
 
 /*!
  *  @brief  Execute a block only once.

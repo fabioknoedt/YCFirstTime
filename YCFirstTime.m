@@ -1,24 +1,24 @@
 //
-//  FKFirstTime.m
-//  FKFirstTime
+//  YCFirstTime.m
+//  YU - YUPPIU
 //
 //  Created by Fabio Knoedt on 28/08/14.
 //  Copyright (c) 2014 Fabio Knoedt. All rights reserved.
 //
 
-#import "FKFirstTime.h"
-#import "FKFirstTimeObject.h"
+#import "YCFirstTime.h"
+#import "YCFirstTimeObject.h"
 
 /// WARNING: don't change that or you will lose information for the next session.
 #define sharedGroup     @"sharedGroup"
 
-@interface FKFirstTime ()
+@interface YCFirstTime ()
 
 @property (nonatomic, retain) NSMutableDictionary *fkDict;
 
 @end
 
-@implementation FKFirstTime
+@implementation YCFirstTime
 
 #pragma mark - Init
 
@@ -33,12 +33,12 @@
     return self;
 }
 
-+ (FKFirstTime *)shared
++ (YCFirstTime *)shared
 {
-    static FKFirstTime *sharedInstance = nil;
+    static YCFirstTime *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedInstance = [[FKFirstTime alloc] init];
+        sharedInstance = [[YCFirstTime alloc] init];
     });
     return sharedInstance;
 }
@@ -131,7 +131,7 @@
     BOOL executed = FALSE;
     
     /// Get the key dictionary.
-    FKFirstTimeObject *blockInfo = [self getInfoForBlock:blockKey forGroup:sharedGroup];
+    YCFirstTimeObject *blockInfo = [self getInfoForBlock:blockKey forGroup:sharedGroup];
     if (blockInfo) {
         
         /// Boolean for executed blocks.
@@ -151,9 +151,9 @@
 - (void)saveExecutionInformationForKey:(NSString *)blockKey
                               forGroup:(NSString *)groupKey;
 {
-    FKFirstTimeObject *blockInfo = [self getInfoForBlock:blockKey forGroup:groupKey];
+    YCFirstTimeObject *blockInfo = [self getInfoForBlock:blockKey forGroup:groupKey];
     if (!blockInfo) {
-        blockInfo = [[FKFirstTimeObject alloc] init];
+        blockInfo = [[YCFirstTimeObject alloc] init];
     }
     
     /// Set the version.
@@ -170,9 +170,9 @@
  *  @brief  Get the info for a certain block key and group.
  *  @param blockKey     The unique name of the block.
  *  @param groupKey     The unique group name that this block is part of.
- *  @return the FKFirstTimeObject with the block execution information.
+ *  @return the YCFirstTimeObject with the block execution information.
  */
-- (FKFirstTimeObject *)getInfoForBlock:(NSString *)blockKey forGroup:(NSString *)groupKey;
+- (YCFirstTimeObject *)getInfoForBlock:(NSString *)blockKey forGroup:(NSString *)groupKey;
 {
     return [[self getDictForGroup:groupKey] objectForKey:blockKey];
 }
@@ -197,7 +197,7 @@
  *  @param blockKey     The unique name of the block.
  *  @param groupKey     The unique group name that this block is part of.
  */
-- (void)setInfoForBlock:(FKFirstTimeObject *)blockInfo forKey:(NSString *)blockKey forGroup:(NSString *)groupKey;
+- (void)setInfoForBlock:(YCFirstTimeObject *)blockInfo forKey:(NSString *)blockKey forGroup:(NSString *)groupKey;
 {
     /// Get the right group dictionary (specific or general).
     NSMutableDictionary *groupDictionary = [self getDictForGroup:groupKey];

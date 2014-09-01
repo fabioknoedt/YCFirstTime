@@ -1,14 +1,14 @@
 //
-//  FKFirstTimeObject.m
-//  FKFirstTime
+//  YCFirstTimeObject.m
+//  YU - YUPPIU
 //
 //  Created by Fabio Knoedt on 28/08/14.
 //  Copyright (c) 2014 Fabio Knoedt. All rights reserved.
 //
 
-#import "FKFirstTimeObject.h"
+#import "YCFirstTimeObject.h"
 
-@implementation FKFirstTimeObject
+@implementation YCFirstTimeObject
 
 - (id)initWithCoder:(NSCoder *)coder
 {
