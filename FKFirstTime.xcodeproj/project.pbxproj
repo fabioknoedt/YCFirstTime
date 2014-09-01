@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		EA4E8DFF19AF2BCB00198DF0 /* FKFirstTime.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = EA4E8DFE19AF2BCB00198DF0 /* FKFirstTime.h */; };
 		EA4E8E0119AF2BCB00198DF0 /* FKFirstTime.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4E8E0019AF2BCB00198DF0 /* FKFirstTime.m */; };
+		EA4E8E1819AF38F100198DF0 /* FKFirstTimeObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4E8E1719AF38F100198DF0 /* FKFirstTimeObject.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +31,8 @@
 		EA4E8E0019AF2BCB00198DF0 /* FKFirstTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FKFirstTime.m; sourceTree = "<group>"; };
 		EA4E8E0619AF2BCB00198DF0 /* FKFirstTimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FKFirstTimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA4E8E0919AF2BCB00198DF0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EA4E8E1619AF38F100198DF0 /* FKFirstTimeObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FKFirstTimeObject.h; sourceTree = "<group>"; };
+		EA4E8E1719AF38F100198DF0 /* FKFirstTimeObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FKFirstTimeObject.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +74,7 @@
 		EA4E8DFD19AF2BCB00198DF0 /* FKFirstTime */ = {
 			isa = PBXGroup;
 			children = (
+				EA4E8E1519AF38F100198DF0 /* Classes */,
 				EA4E8DFE19AF2BCB00198DF0 /* FKFirstTime.h */,
 				EA4E8E0019AF2BCB00198DF0 /* FKFirstTime.m */,
 			);
@@ -91,6 +95,15 @@
 				EA4E8E0919AF2BCB00198DF0 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		EA4E8E1519AF38F100198DF0 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				EA4E8E1619AF38F100198DF0 /* FKFirstTimeObject.h */,
+				EA4E8E1719AF38F100198DF0 /* FKFirstTimeObject.m */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -181,6 +194,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA4E8E0119AF2BCB00198DF0 /* FKFirstTime.m in Sources */,
+				EA4E8E1819AF38F100198DF0 /* FKFirstTimeObject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
