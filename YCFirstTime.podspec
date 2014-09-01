@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
   spec.name             = 'YCFirstTime'
   spec.version          = '1.0'
-  spec.license          = 'MIT'
+  spec.license          = { :type => 'MIT', :file => 'LICENSE' }
   spec.homepage         = 'https://github.com/yuppiu/YCFirstTime'
   spec.authors          = { 'Fabio Knoedt' => 'fabioknoedt@gmail.com' }
   spec.summary          = 'A lightweight library to execute Objective-C codes only once in app life or version life.'
