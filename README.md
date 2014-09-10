@@ -1,4 +1,4 @@
-FKFirstTime
+YCFirstTime
 ===========
 
 A light-weight library to execute Objective-C codes only once in app life or version life. Execute code/blocks only for the first time the app runs, for example.
@@ -57,4 +57,4 @@ Runs fine in iOS6+ and requires ARC.
 Contributors
 ------------
 
-* Fabio Knoedt
+* [Fabio Knoedt](https://github.com/fabioknoedt)
