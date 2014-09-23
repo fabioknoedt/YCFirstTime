@@ -26,17 +26,18 @@
 /*!
  *  @brief  Execute a block only once.
  *  @param blockOnce            The block to be executed only once.
+ *  @param blockKey             The unique name of the block.
+ *  @param days                 The number of days that the code should be executed again.
+ */
+- (void)executeOncePerInterval:(void (^)())blockOnce forKey:(NSString *)blockKey withDaysInterval:(CGFloat)days;
+
+/*!
+ *  @brief  Execute a block only once.
+ *  @param blockOnce            The block to be executed only once.
  *  @param blockAfterFirstTime  The block to be executed always.
  *  @param blockKey             The unique name of the block.
  */
 - (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey;
-
-/*!
- *  @brief  Execute a block only once per version.
- *  @param block    The block to be executed.
- *  @param blockKey The unique name of the block.
- */
-- (void)executeOncePerVersion:(void (^)())blockOnce forKey:(NSString *)blockKey;
 
 /*!
  *  @brief  Execute a block only once per version.

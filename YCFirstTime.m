@@ -52,7 +52,18 @@
  */
 - (void)executeOnce:(void (^)())blockOnce forKey:(NSString *)blockKey;
 {
-    [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:FALSE];
+    [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:FALSE everyXDays:0];
+}
+
+/*!
+ *  @brief  Execute a block only once.
+ *  @param blockOnce            The block to be executed only once.
+ *  @param blockKey             The unique name of the block.
+ *  @param days                 The number of days that the code should be executed again.
+ */
+- (void)executeOncePerInterval:(void (^)())blockOnce forKey:(NSString *)blockKey withDaysInterval:(CGFloat)days;
+{
+    [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:FALSE everyXDays:days];
 }
 
 /*!
@@ -63,17 +74,7 @@
  */
 - (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey;
 {
-    [self executeOnce:blockOnce executeAfterFirstTime:blockAfterFirstTime forKey:blockKey perVersion:FALSE];
-}
-
-/*!
- *  @brief  Execute a block only once per version.
- *  @param block    The block to be executed.
- *  @param blockKey The unique name of the block.
- */
-- (void)executeOncePerVersion:(void (^)())blockOnce forKey:(NSString *)blockKey;
-{
-    [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:TRUE];
+    [self executeOnce:blockOnce executeAfterFirstTime:blockAfterFirstTime forKey:blockKey perVersion:FALSE everyXDays:0];
 }
 
 /*!
@@ -84,7 +85,7 @@
  */
 - (void)executeOncePerVersion:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey;
 {
-    [self executeOnce:blockOnce executeAfterFirstTime:blockAfterFirstTime forKey:blockKey perVersion:TRUE];
+    [self executeOnce:blockOnce executeAfterFirstTime:blockAfterFirstTime forKey:blockKey perVersion:TRUE everyXDays:0];
 }
 
 /*!
@@ -94,10 +95,10 @@
  *  @param  blockKey             The unique name of the block.
  *  @param  checkVersion         Execute this block every new version.
  */
-- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey perVersion:(BOOL)checkVersion;
+- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey perVersion:(BOOL)checkVersion everyXDays:(CGFloat)days;
 {
     /// Check if the block was executed already.
-    if ([self blockAlreadyExecutedForKey:blockKey perVersion:checkVersion]) {
+    if ([self blockAlreadyExecutedForKey:blockKey perVersion:checkVersion everyXDays:days]) {
 
         /// Execute the blockAfterFirstTime from the second time on.
         if (blockAfterFirstTime) {
@@ -124,7 +125,7 @@
  */
 - (BOOL)blockWasExecuted:(NSString *)blockKey;
 {
-    return [self blockAlreadyExecutedForKey:blockKey perVersion:FALSE];
+    return [self blockAlreadyExecutedForKey:blockKey perVersion:FALSE everyXDays:0];
 }
 
 #pragma mark - Private methods
@@ -135,7 +136,7 @@
  *  @param checkVersion If the block should be executed every new version or not.
  *  @return a boolean if the block was executed or not.
  */
-- (BOOL)blockAlreadyExecutedForKey:(NSString *)blockKey perVersion:(BOOL)checkVersion;
+- (BOOL)blockAlreadyExecutedForKey:(NSString *)blockKey perVersion:(BOOL)checkVersion everyXDays:(CGFloat)days;
 {
     /// Boolean for executed blocks.
     BOOL executed = FALSE;
@@ -149,10 +150,17 @@
     }
     
     /// Version.
-    if (checkVersion) {
+    if (checkVersion && blockInfo) {
         
         NSString *currentVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
         executed = executed && [currentVersion isEqualToString:blockInfo.lastVersion];
+    }
+    
+    /// Every X days.
+    if (days && blockInfo) {
+        
+        CGFloat differenceInSeconds = [[NSDate date] timeIntervalSinceDate:blockInfo.lastTime];
+        executed = executed && differenceInSeconds/84600 < days;
     }
     
     return executed;
@@ -217,6 +225,9 @@
     
     /// Set the block info for the dictionary.
     [groupDictionary setObject:blockInfo forKey:blockKey];
+    if (!_fkDict) {
+        _fkDict = [NSMutableDictionary dictionary];
+    }
     [_fkDict setObject:groupDictionary forKey:[groupKey length] ? groupKey : sharedGroup];
     
     /// Sync with the disk.

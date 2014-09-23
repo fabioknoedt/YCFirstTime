@@ -3,6 +3,22 @@ YCFirstTime
 
 A light-weight library to execute Objective-C codes only once in app life or version life. Execute code/blocks only for the first time the app runs, for example.
 
+Installation
+------------
+
+We recommend you to install this project using CocoaPods:
+
+### Installation with CocoaPods
+
+[CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C, which automates and simplifies the process of using 3rd-party libraries like YCFirstTime in your projects.
+
+#### Podfile
+
+```ruby
+platform :ios, '6.0'
+pod "YCFirstTime"
+```
+
 Usage
 ------------
 
@@ -24,6 +40,21 @@ You could use this to show new features of a new version to the user.
 		/// This code will run in your version 1.0 and as well in the 1.1
                                 
 	} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET"];
+
+If you want to run a snippet of code every X days:
+You could use this to ask something for the user every 2 days, for example:
+User case 1: ask only one time for GPS approval (Location) every day or every second day.
+User case 2: ask only one time for Push notifications approval every 4 days.
+User case 3: ask to rate your app every 7 days.
+User case 4: ask to buy the PRO version every day.
+User case 5: ask for something else every X days/hours/minutes/seconds. The days parameter is a CGFloat, use like you want.
+
+	[[YCFirstTime shared] executeOncePerInterval:^{
+      
+		/// Some code that should run only ONCE per app version.
+		/// This code will run in your version 1.0 and as well in the 1.1
+                                
+	} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET" withDaysInterval:2.0f];
   
 You also have the option to execute a snippet of code in the first time and then run another snippet of code from the second time on. This useful when you need to highlight some element for the first time but from this time on, you want to execute another code.
 
@@ -35,7 +66,7 @@ You also have the option to execute a snippet of code in the first time and then
             
 		/// Another piece of code to run from the SECOND time on.
             
-	} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET"];
+	} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET" withDays];
 
 And, finally, you can use the feature above with the version checker as well.
 
