@@ -53,4 +53,9 @@
  */
 - (BOOL)blockWasExecuted:(NSString *)blockKey;
 
+/*!
+ *  @brief  Resets/Erases all the previous executions.
+ */
+- (void)reset;
+
 @end

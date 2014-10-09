@@ -81,6 +81,12 @@ This useful when you need to highlight some element for the first time but from 
             
 	} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET"];
 
+#### Reset all executions
+
+If you want to remove all previous executions and start from zero, you can call:
+
+	[[YCFirstTime shared] reset];
+
 Support
 ------------	
 	

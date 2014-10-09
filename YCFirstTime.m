@@ -237,6 +237,18 @@
 #pragma mark - UserDefaults
 
 /*!
+ *  @brief  Resets/Erases all the previous executions.
+ */
+- (void)reset;
+{
+    /// Delete the values for the sharedKey.
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:sharedGroup];
+
+    /// Loads again from userDefaults.
+    _fkDict = nil;
+}
+
+/*!
  *  @brief  Loads the dictionary from User Defaults.
  *  @return the saved dictionary.
  */
