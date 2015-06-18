@@ -101,3 +101,4 @@ Contributors
 ------------
 
 * [Fabio Knoedt](https://github.com/fabioknoedt)
+<img align="right" src="https://travis-ci.com/img/made-in-berlin-badge.png" alt="Made in Berlin" />
