@@ -1,5 +1,10 @@
 YCFirstTime
 ===========
+[![Pod Version](http://img.shields.io/cocoapods/v/YCFirstTime.svg?style=flat)](http://cocoadocs.org/docsets/YCFirstTime/)
+[![Pod Platform](http://img.shields.io/cocoapods/p/YCFirstTime.svg?style=flat)](http://cocoadocs.org/docsets/YCFirstTime/)
+[![Pod License](http://img.shields.io/cocoapods/l/YCFirstTime.svg?style=flat)](https://github.com/yuppiu/YCFirstTime/blob/master/LICENSE)
+[![Dependency Status](https://www.versioneye.com/objective-c/YCFirstTime/1.1.2/badge.svg?style=flat)](https://www.versioneye.com/objective-c/YCFirstTime)
+[![Reference Status](https://www.versioneye.com/objective-c/YCFirstTime/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/YCFirstTime/references)
 
 A light-weight library to execute Objective-C codes only once in app life or version life. Execute code/blocks only for the first time the app runs, for example.
 
