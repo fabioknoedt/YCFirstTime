@@ -114,7 +114,7 @@
  */
 - (void)executeOncePerInterval:(void (^)())blockOnce
                         forKey:(NSString *)blockKey
-              withDaysInterval:(CGFloat)days;
+              withDaysInterval:(float)days;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:FALSE everyXDays:days];
 }
@@ -126,7 +126,7 @@
  *  @param  blockKey             The unique name of the block.
  *  @param  checkVersion         Execute this block every new version.
  */
-- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey perVersion:(BOOL)checkVersion everyXDays:(CGFloat)days;
+- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey perVersion:(BOOL)checkVersion everyXDays:(float)days;
 {
     /// Check if the block was executed already.
     if ([self blockAlreadyExecutedForKey:blockKey perVersion:checkVersion everyXDays:days]) {
@@ -167,7 +167,7 @@
  *  @param checkVersion If the block should be executed every new version or not.
  *  @return a boolean if the block was executed or not.
  */
-- (BOOL)blockAlreadyExecutedForKey:(NSString *)blockKey perVersion:(BOOL)checkVersion everyXDays:(CGFloat)days;
+- (BOOL)blockAlreadyExecutedForKey:(NSString *)blockKey perVersion:(BOOL)checkVersion everyXDays:(float)days;
 {
     /// Boolean for executed blocks.
     BOOL executed = FALSE;
@@ -190,7 +190,7 @@
     /// Every X days.
     if (days && blockInfo) {
         
-        CGFloat differenceInSeconds = [[NSDate date] timeIntervalSinceDate:blockInfo.lastTime];
+        float differenceInSeconds = [[NSDate date] timeIntervalSinceDate:blockInfo.lastTime];
         executed = executed && differenceInSeconds/84600 < days;
     }
     

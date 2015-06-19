@@ -62,7 +62,7 @@
  */
 - (void)executeOncePerInterval:(void (^)())blockOnce
                         forKey:(NSString *)blockKey
-              withDaysInterval:(CGFloat)days;
+              withDaysInterval:(float)days;
 
 /*!
  *  Check if a block was executed already or not.
