@@ -8,60 +8,70 @@
 
 #import <Foundation/Foundation.h>
 
+/*!
+ *  A lightweight library to execute Objective-C codes only once in app life or version life. Execute code/blocks only for the first time the app runs, for example.
+ */
 @interface YCFirstTime : NSObject
 
 /*!
- *  @brief  Singleton instance shared for the app session.
+ *  Singleton instance shared for the app session.
  *  @return the initialized object.
  */
 + (YCFirstTime *)shared;
 
 /*!
- *  @brief  Execute a block only once.
- *  @param block    The block to be executed.
- *  @param blockKey The unique name of the block.
+ *  Execute a block only once.
+ *  @param blockOnce    The block to be executed.
+ *  @param blockKey     The unique name of the block.
  */
-- (void)executeOnce:(void (^)())blockOnce forKey:(NSString *)blockKey;
+- (void)executeOnce:(void (^)())blockOnce
+             forKey:(NSString *)blockKey;
 
 /*!
- *  @brief  Execute a block only once.
+ *  Execute a block only once.
  *  @param blockOnce            The block to be executed only once.
  *  @param blockAfterFirstTime  The block to be executed always.
  *  @param blockKey             The unique name of the block.
  */
-- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey;
+- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime
+             forKey:(NSString *)blockKey;
 
 /*!
- *  @brief  Execute a block only once per version.
+ *  Execute a block only once per version.
  *  @param blockOnce            The block to be executed only once.
  *  @param blockKey             The unique name of the block.
  */
-- (void)executeOncePerVersion:(void (^)())blockOnce forKey:(NSString *)blockKey;
+- (void)executeOncePerVersion:(void (^)())blockOnce
+                       forKey:(NSString *)blockKey;
 
 /*!
- *  @brief  Execute a block only once per version.
+ *  Execute a block only once per version.
  *  @param blockOnce            The block to be executed only once.
  *  @param blockAfterFirstTime  The block to be executed always.
  *  @param blockKey             The unique name of the block.
  */
-- (void)executeOncePerVersion:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey;
+- (void)executeOncePerVersion:(void (^)())blockOnce
+        executeAfterFirstTime:(void (^)())blockAfterFirstTime
+                       forKey:(NSString *)blockKey;
 
 /*!
- *  @brief  Execute a block only once.
+ *  Execute a block only once.
  *  @param blockOnce            The block to be executed only once.
  *  @param blockKey             The unique name of the block.
  *  @param days                 The number of days that the code should be executed again.
  */
-- (void)executeOncePerInterval:(void (^)())blockOnce forKey:(NSString *)blockKey withDaysInterval:(CGFloat)days;
+- (void)executeOncePerInterval:(void (^)())blockOnce
+                        forKey:(NSString *)blockKey
+              withDaysInterval:(CGFloat)days;
 
 /*!
- *  @brief  Check if a block was executed already or not.
+ *  Check if a block was executed already or not.
  *  @param blockKey The unique name of the block.
  */
 - (BOOL)blockWasExecuted:(NSString *)blockKey;
 
 /*!
- *  @brief  Resets/Erases all the previous executions.
+ *  Resets/Erases all the previous executions.
  */
 - (void)reset;
 

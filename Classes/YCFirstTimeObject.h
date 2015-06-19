@@ -8,9 +8,19 @@
 
 #import <Foundation/Foundation.h>
 
+/*!
+ *  A model class to support YCFirstTime class.
+ */
 @interface YCFirstTimeObject : NSObject
 
+/*!
+ *  The last version that a snippet was executed.
+ */
 @property (nonatomic, retain) NSString *lastVersion;
+
+/*!
+ *  The last time that a snippet was executed.
+ */
 @property (nonatomic, retain) NSDate *lastTime;
 
 @end

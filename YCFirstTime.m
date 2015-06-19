@@ -15,17 +15,24 @@
 @interface YCFirstTime ()
 
 /*!
- *  @brief  The NSMutableDictionary to persist the block execution history.
+ *  The NSMutableDictionary to persist the block execution history.
  */
 @property (nonatomic, retain) NSMutableDictionary *fkDict;
 
 @end
 
+/*!
+ *  Implementation for YCFirstTime.
+ */
 @implementation YCFirstTime
 
 #pragma mark - Init
 
-- (id)init
+/*!
+ *  Implemented by subclasses to initialize a new object (the receiver) immediately after memory for it has been allocated.
+ *  @return An initialized object, or nil if an object could not be created for some reason that would not result in an exception.
+ */
+- (instancetype)init;
 {
     if ((self = [super init])) {
         
@@ -36,7 +43,11 @@
     return self;
 }
 
-+ (YCFirstTime *)shared
+/*!
+ *  Singleton instance shared for the app session.
+ *  @return the initialized object.
+ */
++ (YCFirstTime *)shared;
 {
     static YCFirstTime *sharedInstance = nil;
     static dispatch_once_t onceToken;
@@ -49,60 +60,67 @@
 #pragma mark - Public methods
 
 /*!
- *  @brief  Execute a block only once.
- *  @param  block    The block to be executed.
- *  @param  blockKey The unique name of the block.
+ *  Execute a block only once.
+ *  @param blockOnce    The block to be executed.
+ *  @param blockKey     The unique name of the block.
  */
-- (void)executeOnce:(void (^)())blockOnce forKey:(NSString *)blockKey;
+- (void)executeOnce:(void (^)())blockOnce
+             forKey:(NSString *)blockKey;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:FALSE everyXDays:0];
 }
 
 /*!
- *  @brief  Execute a block only once.
+ *  Execute a block only once.
  *  @param  blockOnce            The block to be executed only once.
  *  @param  blockAfterFirstTime  The block to be executed always.
  *  @param  blockKey             The unique name of the block.
  */
-- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey;
+- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime
+             forKey:(NSString *)blockKey;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:blockAfterFirstTime forKey:blockKey perVersion:FALSE everyXDays:0];
 }
 
 /*!
- *  @brief  Execute a block only once per version.
+ *  Execute a block only once per version.
  *  @param  blockOnce            The block to be executed only once.
  *  @param  blockKey             The unique name of the block.
  */
-- (void)executeOncePerVersion:(void (^)())blockOnce forKey:(NSString *)blockKey;
+- (void)executeOncePerVersion:(void (^)())blockOnce
+                       forKey:(NSString *)blockKey;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:TRUE everyXDays:0];
 }
 
 /*!
- *  @brief  Execute a block only once per version.
+ *  Execute a block only once per version.
  *  @param  blockOnce            The block to be executed only once.
  *  @param  blockAfterFirstTime  The block to be executed always.
  *  @param  blockKey             The unique name of the block.
  */
-- (void)executeOncePerVersion:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey;
+- (void)executeOncePerVersion:(void (^)())blockOnce
+        executeAfterFirstTime:(void (^)())blockAfterFirstTime
+                       forKey:(NSString *)blockKey;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:blockAfterFirstTime forKey:blockKey perVersion:TRUE everyXDays:0];
 }
 
 /*!
- *  @brief  Execute a block only once.
+ *  Execute a block only once.
  *  @param  blockOnce            The block to be executed only once.
  *  @param  blockKey             The unique name of the block.
  *  @param  days                 The number of days that the code should be executed again.
  */
-- (void)executeOncePerInterval:(void (^)())blockOnce forKey:(NSString *)blockKey withDaysInterval:(CGFloat)days;
+- (void)executeOncePerInterval:(void (^)())blockOnce
+                        forKey:(NSString *)blockKey
+              withDaysInterval:(CGFloat)days;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:FALSE everyXDays:days];
 }
 
 /*!
- *  @brief  Execute a block only once.
+ *  Execute a block only once.
  *  @param  blockOnce            The block to be executed only once.
  *  @param  blockAfterFirstTime  The block to be executed always.
  *  @param  blockKey             The unique name of the block.
@@ -133,7 +151,7 @@
 }
 
 /*!
- *  @brief  Check if a block was executed already or not.
+ *  Check if a block was executed already or not.
  *  @param blockKey The unique name of the block.
  */
 - (BOOL)blockWasExecuted:(NSString *)blockKey;
@@ -144,7 +162,7 @@
 #pragma mark - Private methods
 
 /*!
- *  @brief  Check if a block was executed already.
+ *  Check if a block was executed already.
  *  @param blockKey     The unique name of the block.
  *  @param checkVersion If the block should be executed every new version or not.
  *  @return a boolean if the block was executed or not.
@@ -180,7 +198,7 @@
 }
 
 /*!
- *  @brief  Saves the execution of a block. It saves on the disk to post check.
+ *  Saves the execution of a block. It saves on the disk to post check.
  *  @param  blockKey The unique name of the block.
  *  @param  groupKey The unique name of the group block.
  */
@@ -203,7 +221,7 @@
 }
 
 /*!
- *  @brief  Get the info for a certain block key and group.
+ *  Get the info for a certain block key and group.
  *  @param  blockKey     The unique name of the block.
  *  @param  groupKey     The unique group name that this block is part of.
  *  @return the YCFirstTimeObject with the block execution information.
@@ -214,7 +232,7 @@
 }
 
 /*!
- *  @brief  Get the NSMutableDictionary for a certain block group.
+ *  Get the NSMutableDictionary for a certain block group.
  *  @param  groupKey     The unique group name that this block is part of.
  *  @return The NSMutableDictionary for the group.
  */
@@ -228,7 +246,7 @@
 }
 
 /*!
- *  @brief  Set the info for a certain block key and group.
+ *  Set the info for a certain block key and group.
  *  @param  blockInfo    The block information to be saved.
  *  @param  blockKey     The unique name of the block.
  *  @param  groupKey     The unique group name that this block is part of.
@@ -255,7 +273,7 @@
 #pragma mark - UserDefaults
 
 /*!
- *  @brief  Resets/Erases all the previous executions.
+ *  Resets/Erases all the previous executions.
  */
 - (void)reset;
 {
@@ -267,7 +285,7 @@
 }
 
 /*!
- *  @brief  Loads the dictionary from User Defaults.
+ *  Loads the dictionary from User Defaults.
  *  @return the saved dictionary.
  */
 - (NSMutableDictionary *)loadDictionaryFromUserDefaults;
@@ -283,7 +301,7 @@
 }
 
 /*!
- *  @brief  Encodes and saves the current dictionary to the User Defaults.
+ *  Encodes and saves the current dictionary to the User Defaults.
  */
 - (void)saveDictionaryToUserDefaults;
 {
