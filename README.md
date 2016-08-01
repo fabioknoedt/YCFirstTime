@@ -1,6 +1,7 @@
 YCFirstTime
 ===========
 [![Pod Version](http://img.shields.io/cocoapods/v/YCFirstTime.svg?style=flat)](http://cocoadocs.org/docsets/YCFirstTime/)
+[![CI passing](https://travis-ci.org/yuppiu/YCFirstTime.svg?branch=master)]
 [![Pod Platform](http://img.shields.io/cocoapods/p/YCFirstTime.svg?style=flat)](http://cocoadocs.org/docsets/YCFirstTime/)
 [![Pod License](http://img.shields.io/cocoapods/l/YCFirstTime.svg?style=flat)](https://github.com/yuppiu/YCFirstTime/blob/master/LICENSE)
 [![Dependency Status](https://www.versioneye.com/objective-c/YCFirstTime/1.1.2/badge.svg?style=flat)](https://www.versioneye.com/objective-c/YCFirstTime)
@@ -20,7 +21,7 @@ We recommend you to install this project using CocoaPods:
 #### Podfile
 
 ```ruby
-platform :ios, '6.0'
+platform :ios, '9.0'
 pod "YCFirstTime"
 ```
 
