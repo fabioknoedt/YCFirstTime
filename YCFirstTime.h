@@ -24,7 +24,7 @@
  *  @param blockOnce    The block to be executed.
  *  @param blockKey     The unique name of the block.
  */
-- (void)executeOnce:(void (^)())blockOnce
+- (void)executeOnce:(void (^)(void))blockOnce
              forKey:(NSString *)blockKey;
 
 /*!
@@ -33,7 +33,7 @@
  *  @param blockAfterFirstTime  The block to be executed always.
  *  @param blockKey             The unique name of the block.
  */
-- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime
+- (void)executeOnce:(void (^)(void))blockOnce executeAfterFirstTime:(void (^)(void))blockAfterFirstTime
              forKey:(NSString *)blockKey;
 
 /*!
@@ -41,7 +41,7 @@
  *  @param blockOnce            The block to be executed only once.
  *  @param blockKey             The unique name of the block.
  */
-- (void)executeOncePerVersion:(void (^)())blockOnce
+- (void)executeOncePerVersion:(void (^)(void))blockOnce
                        forKey:(NSString *)blockKey;
 
 /*!
@@ -50,8 +50,8 @@
  *  @param blockAfterFirstTime  The block to be executed always.
  *  @param blockKey             The unique name of the block.
  */
-- (void)executeOncePerVersion:(void (^)())blockOnce
-        executeAfterFirstTime:(void (^)())blockAfterFirstTime
+- (void)executeOncePerVersion:(void (^)(void))blockOnce
+        executeAfterFirstTime:(void (^)(void))blockAfterFirstTime
                        forKey:(NSString *)blockKey;
 
 /*!
@@ -60,7 +60,7 @@
  *  @param blockKey             The unique name of the block.
  *  @param days                 The number of days that the code should be executed again.
  */
-- (void)executeOncePerInterval:(void (^)())blockOnce
+- (void)executeOncePerInterval:(void (^)(void))blockOnce
                         forKey:(NSString *)blockKey
               withDaysInterval:(float)days;
 
