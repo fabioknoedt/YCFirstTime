@@ -64,7 +64,7 @@
  *  @param blockOnce    The block to be executed.
  *  @param blockKey     The unique name of the block.
  */
-- (void)executeOnce:(void (^)())blockOnce
+- (void)executeOnce:(void (^)(void))blockOnce
              forKey:(NSString *)blockKey;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:FALSE everyXDays:0];
@@ -76,7 +76,7 @@
  *  @param  blockAfterFirstTime  The block to be executed always.
  *  @param  blockKey             The unique name of the block.
  */
-- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime
+- (void)executeOnce:(void (^)(void))blockOnce executeAfterFirstTime:(void (^)(void))blockAfterFirstTime
              forKey:(NSString *)blockKey;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:blockAfterFirstTime forKey:blockKey perVersion:FALSE everyXDays:0];
@@ -87,7 +87,7 @@
  *  @param  blockOnce            The block to be executed only once.
  *  @param  blockKey             The unique name of the block.
  */
-- (void)executeOncePerVersion:(void (^)())blockOnce
+- (void)executeOncePerVersion:(void (^)(void))blockOnce
                        forKey:(NSString *)blockKey;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:nil forKey:blockKey perVersion:TRUE everyXDays:0];
@@ -99,8 +99,8 @@
  *  @param  blockAfterFirstTime  The block to be executed always.
  *  @param  blockKey             The unique name of the block.
  */
-- (void)executeOncePerVersion:(void (^)())blockOnce
-        executeAfterFirstTime:(void (^)())blockAfterFirstTime
+- (void)executeOncePerVersion:(void (^)(void))blockOnce
+        executeAfterFirstTime:(void (^)(void))blockAfterFirstTime
                        forKey:(NSString *)blockKey;
 {
     [self executeOnce:blockOnce executeAfterFirstTime:blockAfterFirstTime forKey:blockKey perVersion:TRUE everyXDays:0];
@@ -112,7 +112,7 @@
  *  @param  blockKey             The unique name of the block.
  *  @param  days                 The number of days that the code should be executed again.
  */
-- (void)executeOncePerInterval:(void (^)())blockOnce
+- (void)executeOncePerInterval:(void (^)(void))blockOnce
                         forKey:(NSString *)blockKey
               withDaysInterval:(float)days;
 {
@@ -126,7 +126,7 @@
  *  @param  blockKey             The unique name of the block.
  *  @param  checkVersion         Execute this block every new version.
  */
-- (void)executeOnce:(void (^)())blockOnce executeAfterFirstTime:(void (^)())blockAfterFirstTime forKey:(NSString *)blockKey perVersion:(BOOL)checkVersion everyXDays:(float)days;
+- (void)executeOnce:(void (^)(void))blockOnce executeAfterFirstTime:(void (^)(void))blockAfterFirstTime forKey:(NSString *)blockKey perVersion:(BOOL)checkVersion everyXDays:(float)days;
 {
     /// Check if the block was executed already.
     if ([self blockAlreadyExecutedForKey:blockKey perVersion:checkVersion everyXDays:days]) {
