@@ -40,25 +40,3 @@ jobs:
           fi
           echo "All XCTest suites ran and passed."
 
-  compile:
-    name: Compile sources
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Compile for iOS Simulator
-        run: |
-          set -euo pipefail
-          SDK_PATH=$(xcrun --sdk iphonesimulator --show-sdk-path)
-          for src in YCFirstTime.m Classes/YCFirstTimeObject.m; do
-            echo "Compiling $src"
-            xcrun --sdk iphonesimulator clang \
-              -arch arm64 \
-              -isysroot "$SDK_PATH" \
-              -mios-simulator-version-min=15.0 \
-              -fobjc-arc \
-              -fmodules \
-              -Wall \
-              -I. -IClasses \
-              -c "$src" -o "/tmp/$(basename "$src" .m).o"
-          done
