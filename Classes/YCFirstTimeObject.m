@@ -13,6 +13,11 @@
  */
 @implementation YCFirstTimeObject
 
++ (BOOL)supportsSecureCoding
+{
+    return YES;
+}
+
 /*!
  *  Returns an object initialized from data in a given unarchiver.
  *  @param coder An unarchiver object.
@@ -23,12 +28,12 @@
     if ((self = [super init]))
     {
         /// The last version that a snippet was executed.
-        _lastVersion = [coder decodeObjectForKey:@"lastVersion"];
-        
+        _lastVersion = [coder decodeObjectOfClass:[NSString class] forKey:@"lastVersion"];
+
         /// The last time that a snippet was executed.
-        _lastTime = [coder decodeObjectForKey:@"lastTime"];
+        _lastTime = [coder decodeObjectOfClass:[NSDate class] forKey:@"lastTime"];
     }
-    
+
     return self;
 }
 
