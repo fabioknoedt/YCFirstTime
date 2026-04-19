@@ -1,0 +1,6 @@
+# Default owner for everything in the repository.
+*       @fabioknoedt
+
+# The persistence contract lives in these files — flag edits for extra care.
+Sources/YCFirstTime/YCFirstTime.swift         @fabioknoedt
+Sources/YCFirstTime/YCFirstTimeObject.swift   @fabioknoedt

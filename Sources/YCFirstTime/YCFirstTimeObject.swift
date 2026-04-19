@@ -1,10 +1,12 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2014-present Fabio Knoedt
 //
-//  YCFirstTimeObject.swift
+// YCFirstTimeObject.swift
 //
-//  The on-disk archive format is a hard compatibility contract: the class
-//  name, the two NSCoder keys ("lastVersion", "lastTime"), and NSSecureCoding
-//  support must match the pre-2.0 Objective-C original so existing archives
-//  continue to decode.
+// The on-disk archive format is a hard compatibility contract: the class
+// name, the two NSCoder keys ("lastVersion", "lastTime"), and NSSecureCoding
+// support must match the pre-2.0 Objective-C original so existing archives
+// continue to decode.
 //
 
 import Foundation

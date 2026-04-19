@@ -1,0 +1,49 @@
+name: Bug report
+description: Report something that doesn't work as documented.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: YCFirstTime version
+      placeholder: 2.0.0
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform / Swift version
+      placeholder: iOS 17, Swift 5.10
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened? Include error messages / stack traces.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: The shortest code that demonstrates the issue.
+      render: swift
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and found no duplicate.
+          required: true
+        - label: I'm on the latest 2.x release.
+          required: true
