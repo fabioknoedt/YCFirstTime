@@ -90,6 +90,7 @@ Both default to `Bundle.main` / `Date()`. Set to `nil` to restore defaults.
 
 - [`Examples/`](Examples/) — copy-pasteable snippets for every public method.
 - [`FAQ.md`](FAQ.md) — question-shaped recipes ("How do I run code once per install?" etc.).
+- [`MIGRATING.md`](MIGRATING.md) — 1.x → 2.x migration guide.
 - [`AGENTS.md`](AGENTS.md) — machine-readable entry point for LLM agents.
 - [`CHANGELOG.md`](CHANGELOG.md) — what changed and when.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — running tests, commit style, release flow.
