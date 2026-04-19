@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = 'YCFirstTime'
-  spec.version          = '1.1.4'
+  spec.version          = '1.2.0'
   spec.license          = { :type => 'MIT', :file => 'LICENSE' }
   spec.homepage         = 'https://github.com/yuppiu/YCFirstTime'
   spec.authors          = { 'Fabio Knoedt' => 'fabioknoedt@gmail.com' }
@@ -8,5 +8,5 @@ Pod::Spec.new do |spec|
   spec.source           = { :git => 'https://github.com/yuppiu/YCFirstTime.git', :tag => spec.version.to_s }
   spec.source_files     = 'YCFirstTime.{h,m}', 'Classes/*.{h,m}'
   spec.requires_arc     = true
-  spec.ios.deployment_target = '12.0'
+  spec.ios.deployment_target = '15.0'
 end

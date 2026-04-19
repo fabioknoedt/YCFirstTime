@@ -11,16 +11,16 @@
 /*!
  *  A model class to support YCFirstTime class.
  */
-@interface YCFirstTimeObject : NSObject
+@interface YCFirstTimeObject : NSObject <NSSecureCoding>
 
 /*!
  *  The last version that a snippet was executed.
  */
-@property (nonatomic, retain) NSString *lastVersion;
+@property (nonatomic, strong) NSString *lastVersion;
 
 /*!
  *  The last time that a snippet was executed.
  */
-@property (nonatomic, retain) NSDate *lastTime;
+@property (nonatomic, strong) NSDate *lastTime;
 
 @end

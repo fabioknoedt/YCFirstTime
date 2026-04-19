@@ -17,7 +17,7 @@
 /*!
  *  The NSMutableDictionary to persist the block execution history.
  */
-@property (nonatomic, retain) NSMutableDictionary *fkDict;
+@property (nonatomic, strong) NSMutableDictionary *fkDict;
 
 @end
 
@@ -294,7 +294,17 @@
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSData *encodedDictionary = [userDefaults objectForKey:NSStringFromClass([self class])];
     if (encodedDictionary) {
-        return [NSKeyedUnarchiver unarchiveObjectWithData:encodedDictionary];
+        NSSet *allowed = [NSSet setWithArray:@[
+            [NSMutableDictionary class],
+            [NSDictionary class],
+            [NSString class],
+            [NSDate class],
+            [YCFirstTimeObject class],
+        ]];
+        NSMutableDictionary *decoded = [NSKeyedUnarchiver unarchivedObjectOfClasses:allowed
+                                                                           fromData:encodedDictionary
+                                                                              error:nil];
+        return decoded ?: [NSMutableDictionary dictionary];
     } else {
         return [NSMutableDictionary dictionary];
     }
@@ -306,9 +316,12 @@
 - (void)saveDictionaryToUserDefaults;
 {
     /// Encodes and Saves the decoded running dictionary to User Defaults.
-    NSData *decodedDictionary = [NSKeyedArchiver archivedDataWithRootObject:self.fkDict];
-    [[NSUserDefaults standardUserDefaults] setObject:decodedDictionary forKey:NSStringFromClass([self class])];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    NSData *decodedDictionary = [NSKeyedArchiver archivedDataWithRootObject:self.fkDict
+                                                      requiringSecureCoding:YES
+                                                                      error:nil];
+    if (decodedDictionary) {
+        [[NSUserDefaults standardUserDefaults] setObject:decodedDictionary forKey:NSStringFromClass([self class])];
+    }
 }
 
 @end
