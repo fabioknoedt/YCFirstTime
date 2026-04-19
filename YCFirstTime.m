@@ -7,7 +7,10 @@
 //
 
 #import "YCFirstTime.h"
-#import "YCFirstTimeObject.h"
+// YCFirstTimeObject is now Swift. CocoaPods generates `${MODULE_NAME}-Swift.h`
+// for mixed-language pods — this header exposes @objc-compatible Swift
+// declarations to the pod's Obj-C sources.
+#import "YCFirstTime-Swift.h"
 
 /// WARNING: don't change that or you will lose information for the next session.
 #define sharedGroup     @"sharedGroup"

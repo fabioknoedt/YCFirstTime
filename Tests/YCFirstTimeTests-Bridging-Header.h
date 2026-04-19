@@ -6,5 +6,6 @@
 //
 
 #import "YCFirstTime.h"
-#import "YCFirstTimeObject.h"
 #import "YCFirstTime+Testing.h"
+// YCFirstTimeObject is Swift now — visible to Swift test code directly,
+// no Obj-C header to import.
