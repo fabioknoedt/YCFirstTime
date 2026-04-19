@@ -13,6 +13,11 @@ Pod::Spec.new do |spec|
   # Mixed-language pod: Obj-C sources import the generated `${MODULE}-Swift.h`.
   # static_framework keeps downstream consumers from needing `use_frameworks!`.
   spec.static_framework = true
+  # Ensure CocoaPods emits a modulemap + umbrella so the generated
+  # `${MODULE}-Swift.h` is findable as `<YCFirstTime/YCFirstTime-Swift.h>`.
+  spec.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES'
+  }
 
   spec.test_spec 'Tests' do |test_spec|
     test_spec.source_files = 'Tests/**/*.{h,m,swift}'
