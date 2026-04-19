@@ -13,3 +13,4 @@ Swift — drop it into any iOS 15+ project that depends on `YCFirstTime`.
 | [06-reset.swift](06-reset.swift) | Debug "reset app state" action |
 | [07-testing-with-seams.swift](07-testing-with-seams.swift) | Unit-test helper injecting version + clock |
 | [08-objc-usage.m](08-objc-usage.m) | Objective-C call sites |
+| [09-last-execution-date.swift](09-last-execution-date.swift) | Display "last asked N days ago" using `lastExecutionDate(forKey:)` |

@@ -227,6 +227,50 @@ final class YCFirstTimeTests: XCTestCase {
         XCTAssertTrue(sut.blockWasExecuted("k"), "blockWasExecuted must not consider version")
     }
 
+    // MARK: - lastExecutionDate
+
+    func test_lastExecutionDate_isNilBeforeAnyRun() {
+        let sut = YCFirstTime.makeForTest(version: "1.0")
+
+        XCTAssertNil(sut.lastExecutionDate(forKey: "never-run"))
+    }
+
+    func test_lastExecutionDate_returnsStoredTimestamp() {
+        let fixed = Date(timeIntervalSince1970: 1_700_000_000)
+        let sut = YCFirstTime.makeForTest(version: "1.0", now: fixed)
+
+        sut.executeOnce({}, forKey: "k")
+
+        XCTAssertEqual(sut.lastExecutionDate(forKey: "k"), fixed)
+    }
+
+    func test_lastExecutionDate_updatesOnSubsequentRunsOfIntervalBlock() {
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
+        var now = start
+        let sut = YCFirstTime()
+        sut.versionProvider = { "1.0" }
+        sut.nowProvider = { now }
+
+        sut.executeOncePerInterval({}, forKey: "k", withDaysInterval: 1)
+        XCTAssertEqual(sut.lastExecutionDate(forKey: "k"), start)
+
+        // Cross the interval; the block re-runs and the stored timestamp
+        // should advance to the new "now".
+        now = start.addingTimeInterval(2 * 86_400)
+        sut.executeOncePerInterval({}, forKey: "k", withDaysInterval: 1)
+        XCTAssertEqual(sut.lastExecutionDate(forKey: "k"), now)
+    }
+
+    func test_lastExecutionDate_isNilAfterReset() {
+        let sut = YCFirstTime.makeForTest(version: "1.0")
+        sut.executeOnce({}, forKey: "k")
+        XCTAssertNotNil(sut.lastExecutionDate(forKey: "k"))
+
+        sut.reset()
+
+        XCTAssertNil(sut.lastExecutionDate(forKey: "k"))
+    }
+
     // MARK: - reset
 
     func test_reset_clearsInMemoryState() {

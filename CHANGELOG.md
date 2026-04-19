@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Added
+
+- `lastExecutionDate(forKey:) -> Date?` — read-only accessor for the timestamp
+  of a key's most recent successful execution. The library already stores this
+  for interval math; exposing it means apps that display "last asked N days
+  ago" don't need to track it twice. `@objc` selector:
+  `-[YCFirstTime lastExecutionDateForKey:]`.
+
 ## [2.0.0] — 2026-04-19
 
 Swift rewrite. Public API and on-disk archive format are preserved, so
