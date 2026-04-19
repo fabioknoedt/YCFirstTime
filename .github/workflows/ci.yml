@@ -46,11 +46,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: swift test
-        # Serial on purpose — the persistence tests round-trip through
-        # UserDefaults.standard, which is process-global. Running in parallel
-        # causes setUp's `removeObject` to clobber another test's in-flight
-        # archive. The suite finishes in < 1s, so there's nothing to gain
-        # from --parallel.
-        run: swift test
+      - name: swift test with coverage
+        # Serial on purpose — see note in the claude/docc-examples branch.
+        # `--enable-code-coverage` writes a .profdata file under .build/ that
+        # the Codecov uploader picks up below.
+        run: swift test --enable-code-coverage
+
+      - name: Export coverage to lcov
+        run: |
+          set -euo pipefail
+          PROF=$(find .build -name default.profdata -print -quit)
+          BUNDLE=$(find .build -name "*PackageTests.xctest" -type d -print -quit)
+          BIN="$BUNDLE/Contents/MacOS/$(basename "$BUNDLE" .xctest)"
+          xcrun llvm-cov export \
+            -format=lcov \
+            -instr-profile "$PROF" \
+            -ignore-filename-regex='\.build|Tests|Examples' \
+            "$BIN" > coverage.lcov
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.lcov
+          fail_ci_if_error: false
 
