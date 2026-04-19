@@ -47,8 +47,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: swift test
-        # Runs the Tests/YCFirstTimeTests target via SPM. Proves the package
-        # builds and its tests pass under the SPM toolchain, which is what
-        # most downstream consumers will use.
-        run: swift test --parallel
+        # Serial on purpose — the persistence tests round-trip through
+        # UserDefaults.standard, which is process-global. Running in parallel
+        # causes setUp's `removeObject` to clobber another test's in-flight
+        # archive. The suite finishes in < 1s, so there's nothing to gain
+        # from --parallel.
+        run: swift test
 
