@@ -5,40 +5,46 @@ on:
     branches: [master, main]
   pull_request:
 
+# Cancel in-progress runs on the same ref when new commits arrive.
+# Saves minutes on force-pushes and rapid PR iteration.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pod-lint:
-    name: Pod lib lint + tests
+    name: Pod lib lint
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
+
+      # The CocoaPods spec repo is large (~1.5GB). Caching it shaves
+      # 30-60s off cold runs.
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cocoapods
+            ~/Library/Caches/CocoaPods
+          key: ${{ runner.os }}-pods-${{ hashFiles('YCFirstTime.podspec') }}
+          restore-keys: ${{ runner.os }}-pods-
 
       - name: Show environment
         run: |
           xcodebuild -version
           pod --version
 
-      - name: Lint podspec and run test_spec
-        # `pod lib lint` runs the test_spec by default. We tee the output so
-        # the follow-up step can verify tests actually executed — a missing
-        # test_spec would otherwise pass lint silently.
+      - name: Lint podspec
+        # --skip-tests: behavioral tests run via `swift test` in the other
+        # job; running them twice costs a minute without catching anything
+        # the SPM path misses. pod lib lint still validates the podspec,
+        # source compilation under CocoaPods, and framework module setup.
+        # --fail-fast: exit on first subspec/platform failure.
         run: |
-          set -o pipefail
-          pod lib lint YCFirstTime.podspec --allow-warnings --verbose 2>&1 \
-            | tee /tmp/pod-lint.log
-
-      - name: Verify test_spec executed and passed
-        run: |
-          set -e
-          if ! grep -qE "Test Suite '.*YCFirstTimeTests'.*passed" /tmp/pod-lint.log; then
-            echo "::error::YCFirstTimeTests did not run or did not pass."
-            echo "Expected an xcodebuild 'Test Suite ... passed' line for YCFirstTimeTests."
-            exit 1
-          fi
-          if ! grep -qE "Test Suite '.*YCFirstTimeObjectTests'.*passed" /tmp/pod-lint.log; then
-            echo "::error::YCFirstTimeObjectTests did not run or did not pass."
-            exit 1
-          fi
-          echo "All XCTest suites ran and passed."
+          pod lib lint YCFirstTime.podspec \
+            --allow-warnings \
+            --fail-fast \
+            --skip-tests
 
   spm-test:
     name: Swift Package Manager test
@@ -46,10 +52,20 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Caching .build/ keyed on Package.swift + Package.resolved + source
+      # hash. Subsequent runs reuse compiled modules — incremental builds
+      # in SPM are fast, and Swift detects source changes correctly.
+      - name: Cache SwiftPM build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift', 'Package.resolved', 'Sources/**/*.swift', 'Tests/**/*.swift') }}
+          restore-keys: ${{ runner.os }}-spm-
+
       - name: swift test with coverage
-        # Serial on purpose — see note in the claude/docc-examples branch.
-        # `--enable-code-coverage` writes a .profdata file under .build/ that
-        # the Codecov uploader picks up below.
+        # Serial on purpose — the persistence tests share UserDefaults.standard.
         run: swift test --enable-code-coverage
 
       - name: Export coverage to lcov
@@ -66,8 +82,6 @@ jobs:
           echo "coverage.lcov: $(wc -c < coverage.lcov) bytes, $(wc -l < coverage.lcov) lines"
 
       - name: Upload coverage as workflow artifact
-        # Lets us download and inspect coverage.lcov from the run, independent
-        # of whether the Codecov upload below succeeds.
         uses: actions/upload-artifact@v5
         with:
           name: coverage-lcov
@@ -75,14 +89,9 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage to Codecov
-        # Codecov v5 runs on Node 24. The v4 behavior around protected-branch
-        # uploads still applies — the repository upload token is required.
-        # `fail_ci_if_error: true` so a silent upload failure turns the job
-        # red instead of passing with no coverage.
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.lcov
           fail_ci_if_error: true
           verbose: true
-
