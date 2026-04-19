@@ -9,6 +9,8 @@
 
 Run Swift code once per install, once per app version, or once every N days. Persists to `UserDefaults`. `@objc`-compatible — works from Swift and Objective-C unchanged.
 
+**Common use cases:** first-launch onboarding, one-time database seeding, "what's new" sheets on each version bump, rate-the-app prompts every N days, push-notification permission re-prompts, feature-rollout gates, first-time tutorial bubbles that turn into quick tips on subsequent taps.
+
 - **Platform:** iOS 15+
 - **Language:** Swift 5
 - **Dependencies:** Foundation only
@@ -83,6 +85,15 @@ Both default to `Bundle.main` / `Date()`. Set to `nil` to restore defaults.
 - **Cross-device state** — no iCloud sync. Store it in CloudKit instead.
 - **Hot-path gating** — every success re-archives the whole dict.
 - **Security-sensitive gating** — `UserDefaults` is editable on jailbroken devices.
+
+## Further reading
+
+- [`Examples/`](Examples/) — copy-pasteable snippets for every public method.
+- [`FAQ.md`](FAQ.md) — question-shaped recipes ("How do I run code once per install?" etc.).
+- [`AGENTS.md`](AGENTS.md) — machine-readable entry point for LLM agents.
+- [`CHANGELOG.md`](CHANGELOG.md) — what changed and when.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — running tests, commit style, release flow.
+- [`SECURITY.md`](SECURITY.md) — scope, supported versions, how to report issues.
 
 ## For LLM agents and coding assistants
 

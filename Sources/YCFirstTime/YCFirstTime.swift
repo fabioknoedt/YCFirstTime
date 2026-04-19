@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2014-present Fabio Knoedt
 //
-//  YCFirstTime.swift
-//
-//  Swift port of YCFirstTime.{h,m}. Preserves the on-disk archive contract:
-//      UserDefaults key: "YCFirstTime"
-//      Archive shape:    { "sharedGroup": { blockKey: YCFirstTimeObject } }
+// YCFirstTime.swift — Swift port of YCFirstTime.{h,m}.
+// Preserves the on-disk archive contract:
+//     UserDefaults key: "YCFirstTime"
+//     Archive shape:    { "sharedGroup": { blockKey: YCFirstTimeObject } }
 //
 
 import Foundation

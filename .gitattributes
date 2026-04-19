@@ -1,0 +1,8 @@
+* text=auto eol=lf
+
+*.swift       linguist-language=Swift
+*.podspec     linguist-language=Ruby
+
+# Exclude generated / vendored paths from language stats.
+Examples/*    linguist-documentation
+*.md          linguist-documentation
