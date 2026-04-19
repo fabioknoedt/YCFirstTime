@@ -9,4 +9,13 @@ Pod::Spec.new do |spec|
   spec.source_files     = 'YCFirstTime.{h,m}', 'Classes/*.{h,m}'
   spec.requires_arc     = true
   spec.ios.deployment_target = '15.0'
+
+  spec.test_spec 'Tests' do |test_spec|
+    test_spec.source_files = 'Tests/**/*.{h,m,swift}'
+    test_spec.requires_app_host = true
+    test_spec.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '${PODS_TARGET_SRCROOT}/Tests/YCFirstTimeTests-Bridging-Header.h',
+      'SWIFT_VERSION' => '5.0'
+    }
+  end
 end

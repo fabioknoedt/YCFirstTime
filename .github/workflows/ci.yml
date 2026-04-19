@@ -17,7 +17,8 @@ jobs:
           xcodebuild -version
           pod --version
 
-      - name: Lint podspec
+      - name: Lint podspec and run test_spec
+        # `pod lib lint` runs the test_spec by default (use --skip-tests to opt out).
         run: pod lib lint YCFirstTime.podspec --allow-warnings --verbose
 
   compile:

@@ -19,6 +19,18 @@
  */
 @property (nonatomic, strong) NSMutableDictionary *fkDict;
 
+/*!
+ *  Injectable provider for the current app version string. Tests override this
+ *  via the YCFirstTime+Testing category. Defaults to CFBundleShortVersionString.
+ */
+@property (nonatomic, copy) NSString *(^versionProvider)(void);
+
+/*!
+ *  Injectable provider for the current date. Tests override this via the
+ *  YCFirstTime+Testing category. Defaults to [NSDate date].
+ */
+@property (nonatomic, copy) NSDate *(^nowProvider)(void);
+
 @end
 
 /*!
@@ -38,6 +50,14 @@
         
         /// Load the already tracked executed blocks from UserDefaults.
         self.fkDict = [self loadDictionaryFromUserDefaults];
+
+        /// Default providers — overridable via YCFirstTime+Testing.
+        self.versionProvider = ^NSString *{
+            return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        };
+        self.nowProvider = ^NSDate *{
+            return [NSDate date];
+        };
     }
     
     return self;
@@ -183,14 +203,15 @@
     /// Version.
     if (checkVersion && blockInfo) {
         
-        NSString *currentVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        NSString *currentVersion = self.versionProvider ? self.versionProvider() : [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
         executed = executed && [currentVersion isEqualToString:blockInfo.lastVersion];
     }
     
     /// Every X days.
     if (days && blockInfo) {
         
-        float differenceInSeconds = [[NSDate date] timeIntervalSinceDate:blockInfo.lastTime];
+        NSDate *now = self.nowProvider ? self.nowProvider() : [NSDate date];
+        float differenceInSeconds = [now timeIntervalSinceDate:blockInfo.lastTime];
         executed = executed && differenceInSeconds/84600 < days;
     }
     
@@ -211,10 +232,10 @@
     }
     
     /// Set the version.
-    blockInfo.lastVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-    
+    blockInfo.lastVersion = self.versionProvider ? self.versionProvider() : [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+
     /// Set last time execute date.
-    blockInfo.lastTime = [NSDate date];
+    blockInfo.lastTime = self.nowProvider ? self.nowProvider() : [NSDate date];
     
     /// Set to the main dictionary.
     [self setInfoForBlock:blockInfo forKey:blockKey forGroup:groupKey];
