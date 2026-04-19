@@ -1,5 +1,6 @@
 import Foundation
 import XCTest
+import YCFirstTime
 
 /// The UserDefaults key under which YCFirstTime stores its archived dictionary
 /// (= NSStringFromClass([YCFirstTime class])).
@@ -21,7 +22,7 @@ enum TestDefaults {
 extension YCFirstTime {
     /// Convenience for tests — build a fresh instance with fixed version + clock.
     static func makeForTest(version: String, now: Date = Date()) -> YCFirstTime {
-        let instance = YCFirstTime.makeTestInstance()
+        let instance = YCFirstTime()
         instance.versionProvider = { version }
         instance.nowProvider = { now }
         return instance

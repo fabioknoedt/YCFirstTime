@@ -1,4 +1,5 @@
 import XCTest
+import YCFirstTime
 
 /// Behavioral pin-down tests for YCFirstTime. These tests exist to give us
 /// confidence when rewriting the library in Swift — the same suite must pass
@@ -117,7 +118,7 @@ final class YCFirstTimeTests: XCTestCase {
     func test_executeOncePerInterval_runsAgainAfterInterval() {
         let start = Date(timeIntervalSince1970: 1_700_000_000)
         var now = start
-        let sut = YCFirstTime.makeTestInstance()
+        let sut = YCFirstTime()
         sut.versionProvider = { "1.0" }
         sut.nowProvider = { now }
 
@@ -135,16 +136,13 @@ final class YCFirstTimeTests: XCTestCase {
         XCTAssertEqual(count, 2)
     }
 
-    func test_executeOncePerInterval_divisorBugUses84600() {
-        // KNOWN BUG (YCFirstTime.m:194): divisor is 84600, not 86400.
-        // A day is therefore 84_600s in the current impl. An elapsed time
-        // between 84_600 and 86_400 crosses the boundary and triggers a
-        // re-run, even though a real day has not yet passed.
-        //
-        // TODO(swift-port): fix to 86_400 and flip this assertion.
+    func test_executeOncePerInterval_usesRealSecondsPerDay() {
+        // Swift port fixes the /84600 typo (Obj-C YCFirstTime.m:194) — the
+        // divisor is now 86_400. 85_000 seconds is strictly less than one real
+        // day, so the block must NOT re-run.
         let start = Date(timeIntervalSince1970: 1_700_000_000)
         var now = start
-        let sut = YCFirstTime.makeTestInstance()
+        let sut = YCFirstTime()
         sut.versionProvider = { "1.0" }
         sut.nowProvider = { now }
 
@@ -152,10 +150,15 @@ final class YCFirstTimeTests: XCTestCase {
         sut.executeOncePerInterval({ count += 1 }, forKey: "k", withDaysInterval: 1)
         XCTAssertEqual(count, 1)
 
-        // 85_000 seconds is < 1 real day but > 84_600 (the buggy divisor).
+        // 85_000 seconds < 86_400 — under the boundary, must not re-run.
         now = start.addingTimeInterval(85_000)
         sut.executeOncePerInterval({ count += 1 }, forKey: "k", withDaysInterval: 1)
-        XCTAssertEqual(count, 2, "Current impl treats 85_000s as >=1 day due to /84600 bug")
+        XCTAssertEqual(count, 1, "Under one real day must not re-trigger")
+
+        // Cross the real one-day boundary — now it must re-run.
+        now = start.addingTimeInterval(86_401)
+        sut.executeOncePerInterval({ count += 1 }, forKey: "k", withDaysInterval: 1)
+        XCTAssertEqual(count, 2)
     }
 
     // MARK: - blockWasExecuted
@@ -183,27 +186,25 @@ final class YCFirstTimeTests: XCTestCase {
         XCTAssertFalse(sut.blockWasExecuted("k"))
     }
 
-    func test_reset_doesNotClearPersistedStateDueToBug() {
-        // KNOWN BUG (YCFirstTime.m:281): -reset removes the "sharedGroup" key,
-        // but the archive is persisted under the class-name key "YCFirstTime".
-        // So a relaunch resurrects the "reset" state.
-        //
-        // TODO(swift-port): remove the correct key and flip this assertion.
+    func test_reset_clearsPersistedStateAcrossRelaunch() {
+        // Swift port fixes the Obj-C bug (YCFirstTime.m:281) where reset
+        // removed the wrong UserDefaults key. Reset now removes the same key
+        // the archive is stored under, so state does not survive a relaunch.
         let first = YCFirstTime.makeForTest(version: "1.0")
         first.executeOnce({}, forKey: "k")
         first.reset()
 
         let secondAfterRelaunch = YCFirstTime.makeForTest(version: "1.0")
-        XCTAssertTrue(
+        XCTAssertFalse(
             secondAfterRelaunch.blockWasExecuted("k"),
-            "Current impl persists through reset due to wrong-key bug"
+            "After reset, a relaunched instance must not see previously-executed blocks"
         )
     }
 
     // MARK: - Singleton
 
     func test_shared_returnsSameInstance() {
-        XCTAssertTrue(YCFirstTime.shared() === YCFirstTime.shared())
+        XCTAssertTrue(YCFirstTime.shared === YCFirstTime.shared)
     }
 
     // MARK: - Persistence format (migration contract)
