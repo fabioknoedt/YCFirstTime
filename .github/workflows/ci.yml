@@ -40,3 +40,15 @@ jobs:
           fi
           echo "All XCTest suites ran and passed."
 
+  spm-test:
+    name: Swift Package Manager test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: swift test
+        # Runs the Tests/YCFirstTimeTests target via SPM. Proves the package
+        # builds and its tests pass under the SPM toolchain, which is what
+        # most downstream consumers will use.
+        run: swift test --parallel
+

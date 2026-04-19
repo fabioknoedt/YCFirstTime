@@ -32,13 +32,18 @@ public final class YCFirstTime: NSObject {
     private var fkDict: NSMutableDictionary
 
     // Injectable seams. Default providers match the original behavior
-    // (CFBundleShortVersionString / Date()). Tests override via the
-    // Swift-visible setters below — also exported to Obj-C so the existing
-    // test bridging header keeps working unchanged.
-    @objc public var versionProvider: (() -> String?)?
-    @objc public var nowProvider: (() -> Date)?
+    // (CFBundleShortVersionString / Date()). Swift-only — not @objc, since
+    // Swift closure types aren't Obj-C-representable unless tagged
+    // @convention(block), which would force every Obj-C call site to use
+    // ^-syntax and add no value. Obj-C consumers don't need these seams.
+    public var versionProvider: (() -> String?)?
+    public var nowProvider: (() -> Date)?
 
-    @objc public static let shared = YCFirstTime()
+    // Exposed as a Swift static property and an Obj-C class-method getter
+    // (`+[YCFirstTime shared]`). The class-var pattern is the most portable
+    // way to @objc-export a singleton across Swift versions.
+    @objc public class var shared: YCFirstTime { _shared }
+    private static let _shared = YCFirstTime()
 
     @objc public override init() {
         self.fkDict = Self.loadDictionary()

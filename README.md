@@ -27,11 +27,26 @@ That's the whole API in one call. Five more methods cover the per-version and pe
 
 ## Installation
 
+### Swift Package Manager (recommended)
+
+In Xcode: **File → Add Package Dependencies…** and enter the repo URL.
+
+Or in `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.0.0"),
+],
+targets: [
+    .target(name: "YourApp", dependencies: ["YCFirstTime"]),
+]
+```
+
 ### CocoaPods
 
 ```ruby
 platform :ios, '15.0'
-pod 'YCFirstTime'
+pod 'YCFirstTime', '~> 2.0'
 ```
 
 There is **no** `use_frameworks!` requirement.
@@ -123,11 +138,12 @@ The library exports the same selectors used by the pre-2.0 Objective-C version, 
 ## File layout
 
 ```
-YCFirstTime.swift              Public API, singleton, core logic
-Classes/YCFirstTimeObject.swift Per-key state model (NSSecureCoding)
-Tests/                          XCTest suite (behavior pinning + migration contract)
-YCFirstTime.podspec             CocoaPods manifest
-.github/workflows/ci.yml        GitHub Actions: `pod lib lint` + tests
+Package.swift                             Swift Package Manager manifest
+Sources/YCFirstTime/YCFirstTime.swift     Public API, singleton, core logic
+Sources/YCFirstTime/YCFirstTimeObject.swift  Per-key state model (NSSecureCoding)
+Tests/YCFirstTimeTests/                   XCTest suite (behavior + migration contract)
+YCFirstTime.podspec                       CocoaPods manifest
+.github/workflows/ci.yml                  GitHub Actions: `pod lib lint` + tests
 ```
 
 ---
