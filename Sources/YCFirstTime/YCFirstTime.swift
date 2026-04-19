@@ -38,6 +38,7 @@ private let kSecondsPerDay: TimeInterval = 86_400
 ///
 /// ### Inspection and reset
 /// - ``blockWasExecuted(_:)``
+/// - ``lastExecutionDate(forKey:)``
 /// - ``reset()``
 ///
 /// ### Testing seams
@@ -172,6 +173,20 @@ public final class YCFirstTime: NSObject, @unchecked Sendable {
     @objc(blockWasExecuted:)
     public func blockWasExecuted(_ key: String) -> Bool {
         alreadyExecuted(forKey: key, perVersion: false, everyXDays: 0)
+    }
+
+    /// Returns the timestamp of the most recent successful execution for `key`,
+    /// or `nil` if the key has never run.
+    ///
+    /// Useful for UIs that want to display "last asked N days ago" — the
+    /// library already stores this for interval math, so there's no reason to
+    /// track it twice.
+    ///
+    /// - Parameter key: A globally-unique identifier.
+    /// - Returns: The recorded `Date`, or `nil` for a key that has never run.
+    @objc(lastExecutionDateForKey:)
+    public func lastExecutionDate(forKey key: String) -> Date? {
+        info(forBlock: key)?.lastTime
     }
 
     /// Clears every recorded execution, in memory and on disk.

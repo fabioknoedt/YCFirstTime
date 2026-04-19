@@ -58,6 +58,16 @@ if YCFirstTime.shared.blockWasExecuted("onboarding.v1") {
 
 Pure read. Ignores version and interval — it only answers "has this key ever fired?".
 
+## How do I display "last asked N days ago" for a rate-limited prompt?
+
+```swift
+if let lastAsked = YCFirstTime.shared.lastExecutionDate(forKey: "prompt.rating") {
+    label.text = "Last asked \(lastAsked.formatted(.relative(presentation: .numeric)))"
+}
+```
+
+`lastExecutionDate(forKey:)` returns `nil` for keys that have never run and the stored `Date` otherwise. Pure read — no side effects.
+
 ## How do I reset all state (for a "Reset app" debug menu)?
 
 ```swift
