@@ -8,5 +8,5 @@ Pod::Spec.new do |spec|
   spec.source           = { :git => 'https://github.com/yuppiu/YCFirstTime.git', :tag => spec.version.to_s }
   spec.source_files     = 'YCFirstTime.{h,m}', 'Classes/*.{h,m}'
   spec.requires_arc     = true
-  spec.ios.deployment_target = '6.0'
+  spec.ios.deployment_target = '12.0'
 end

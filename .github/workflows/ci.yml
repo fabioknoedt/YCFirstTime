@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  pod-lint:
+    name: Pod lib lint
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show environment
+        run: |
+          xcodebuild -version
+          pod --version
+
+      - name: Lint podspec
+        run: pod lib lint YCFirstTime.podspec --allow-warnings --verbose
+
+  compile:
+    name: Compile sources
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile for iOS Simulator
+        run: |
+          set -euo pipefail
+          SDK_PATH=$(xcrun --sdk iphonesimulator --show-sdk-path)
+          for src in YCFirstTime.m Classes/YCFirstTimeObject.m; do
+            echo "Compiling $src"
+            xcrun --sdk iphonesimulator clang \
+              -arch arm64 \
+              -isysroot "$SDK_PATH" \
+              -mios-simulator-version-min=12.0 \
+              -fobjc-arc \
+              -fmodules \
+              -Wall \
+              -I. -IClasses \
+              -c "$src" -o "/tmp/$(basename "$src" .m).o"
+          done
