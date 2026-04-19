@@ -1,46 +1,29 @@
 # YCFirstTime
 
-A tiny Swift library for running a block of code **once** per install, **once per app version**, or **once per N days**. State is persisted in `UserDefaults` so it survives relaunches. Fully `@objc`-compatible — works from both Swift and Objective-C.
+Run Swift code once per install, once per app version, or once every N days. Persists to `UserDefaults`. `@objc`-compatible — works from Swift and Objective-C unchanged.
 
-- **Language:** Swift 5 (ported from Objective-C; archive format preserved)
 - **Platform:** iOS 15+
-- **Thread safety:** Not safe for concurrent calls on the same key. Call from the main thread.
-- **Persistence:** One `UserDefaults` key (`"YCFirstTime"`) holding an `NSKeyedArchiver` dict
+- **Language:** Swift 5
 - **Dependencies:** Foundation only
-
----
-
-## At a glance
+- **Thread safety:** Not concurrent-safe per key. Call on the main thread.
 
 ```swift
 import YCFirstTime
 
-// Runs once, ever, per install.
 YCFirstTime.shared.executeOnce({
     showOnboarding()
 }, forKey: "onboarding.v1")
 ```
 
-That's the whole API in one call. Five more methods cover the per-version and per-interval variants.
+## Install
 
----
-
-## Installation
-
-### Swift Package Manager (recommended)
-
-In Xcode: **File → Add Package Dependencies…** and enter the repo URL.
-
-Or in `Package.swift`:
+### Swift Package Manager
 
 ```swift
-dependencies: [
-    .package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.0.0"),
-],
-targets: [
-    .target(name: "YourApp", dependencies: ["YCFirstTime"]),
-]
+.package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.0.0")
 ```
+
+Or in Xcode: **File → Add Package Dependencies…**
 
 ### CocoaPods
 
@@ -49,139 +32,50 @@ platform :ios, '15.0'
 pod 'YCFirstTime', '~> 2.0'
 ```
 
-There is **no** `use_frameworks!` requirement.
+No `use_frameworks!` required.
 
----
-
-## Public API
-
-The singleton is `YCFirstTime.shared`. All methods below are available on it.
+## API
 
 | Method | Runs the block when... |
 |---|---|
-| `executeOnce(_:forKey:)` | First time this key is ever seen on this install. |
-| `executeOnce(_:executeAfterFirstTime:forKey:)` | First time as above; the second block runs on every subsequent call. |
-| `executeOncePerVersion(_:forKey:)` | First time this key is seen on the current `CFBundleShortVersionString`. Re-runs on version bump. |
-| `executeOncePerVersion(_:executeAfterFirstTime:forKey:)` | Per-version as above, plus an alternate block for subsequent calls within the same version. |
-| `executeOncePerInterval(_:forKey:withDaysInterval:)` | First time, then again after the given number of days has elapsed since the last run. |
-| `blockWasExecuted(_:) -> Bool` | Read-only check: has this key ever been marked executed? Ignores version and interval. |
-| `reset()` | Clears all recorded executions, in memory and on disk. |
+| `executeOnce(_:forKey:)` | This key is seen for the first time on this install. |
+| `executeOnce(_:executeAfterFirstTime:forKey:)` | First time as above; second block on every subsequent call. |
+| `executeOncePerVersion(_:forKey:)` | This key is first seen on the current `CFBundleShortVersionString`. |
+| `executeOncePerVersion(_:executeAfterFirstTime:forKey:)` | Per-version, with an alternate block for subsequent calls in the same version. |
+| `executeOncePerInterval(_:forKey:withDaysInterval:)` | Elapsed time since last run exceeds `days × 86_400` seconds. |
+| `blockWasExecuted(_:) -> Bool` | — (read-only; ignores version and interval). |
+| `reset()` | Clears every recorded execution, in memory and on disk. |
 
-### Semantics
+Semantics:
 
-- **Keys are global.** Pick unique strings (e.g. `"onboarding.v1"`, `"push.prompt"`).
-- **A `nil` / no-op block does not mark the key as executed.** A key is only marked executed when the block actually runs. Passing `nil` is a no-op.
-- **Version comparison is exact string equality.** `"1.0"` and `"1.0.0"` are different versions.
-- **Interval uses elapsed seconds divided by 86_400.** `withDaysInterval:` accepts a `Float`, so fractional days work (`0.5` = 12h).
-- **`blockWasExecuted` ignores version and interval.** It only answers "has this key ever been flagged?"
+- **Keys are global.** Use descriptive strings (`"onboarding.v1"`, `"push.prompt"`).
+- A `nil` block is a no-op and does **not** mark the key as executed.
+- Version comparison is **exact string equality** (`"1.0"` ≠ `"1.0.0"`).
+- Intervals accept a `Float` — `0.5` = 12 hours.
 
----
-
-## Usage
-
-### Swift
-
-```swift
-import YCFirstTime
-
-let firstTime = YCFirstTime.shared
-
-// Once per install — e.g. onboarding, initial DB seed.
-firstTime.executeOnce({
-    seedDatabase()
-}, forKey: "db.seed.v1")
-
-// Once per app version — e.g. a "What's new" sheet.
-firstTime.executeOncePerVersion({
-    showWhatsNew()
-}, forKey: "whats-new")
-
-// Once per N days — e.g. rate prompt every 7 days.
-firstTime.executeOncePerInterval({
-    askForRating()
-}, forKey: "prompt.rating", withDaysInterval: 7)
-
-// Run A the first time, B every other time.
-firstTime.executeOnce({
-    showTutorialBubble()
-}, executeAfterFirstTime: {
-    showQuickTip()
-}, forKey: "feature.tutorial")
-
-// Read without side effects.
-if firstTime.blockWasExecuted("db.seed.v1") {
-    print("Seed already applied.")
-}
-
-// Nuke everything (e.g. a "Reset app" debug action).
-firstTime.reset()
-```
-
-### Objective-C
-
-The library exports the same selectors used by the pre-2.0 Objective-C version, so existing call sites keep working:
-
-```objc
-@import YCFirstTime;
-
-[[YCFirstTime shared] executeOnce:^{
-    [self showOnboarding];
-} forKey:@"onboarding.v1"];
-
-[[YCFirstTime shared] executeOncePerInterval:^{
-    [self askForRating];
-} forKey:@"prompt.rating" withDaysInterval:7.0];
-```
-
----
-
-## File layout
-
-```
-Package.swift                             Swift Package Manager manifest
-Sources/YCFirstTime/YCFirstTime.swift     Public API, singleton, core logic
-Sources/YCFirstTime/YCFirstTimeObject.swift  Per-key state model (NSSecureCoding)
-Tests/YCFirstTimeTests/                   XCTest suite (behavior + migration contract)
-YCFirstTime.podspec                       CocoaPods manifest
-.github/workflows/ci.yml                  GitHub Actions: `pod lib lint` + tests
-```
-
----
+Full Swift and Obj-C call-site examples live in [`Examples/`](Examples/).
 
 ## Persistence contract
 
-Archive state is stored in `UserDefaults.standard`:
+State is stored in `UserDefaults.standard` under key `"YCFirstTime"` as an `NSKeyedArchiver` blob shaped `{ "sharedGroup": { blockKey: YCFirstTimeObject } }`. `YCFirstTimeObject` encodes two fields, `lastVersion` and `lastTime`, under those coder keys.
 
-- **Key:** `"YCFirstTime"`
-- **Value:** `Data` produced by `NSKeyedArchiver.archivedData(withRootObject:requiringSecureCoding:)`
-- **Root object:** `NSMutableDictionary` shaped `{ "sharedGroup": { blockKey: YCFirstTimeObject } }`
-- **`YCFirstTimeObject`** encodes two fields: `lastVersion: String?` (`CFBundleShortVersionString`) and `lastTime: Date?`
-
-This layout is a hard contract — archives written by the pre-2.0 Objective-C version decode unchanged on the Swift version. Do not change the UserDefaults key, the `sharedGroup` constant, the `YCFirstTimeObject` class name, or the `"lastVersion"` / `"lastTime"` coder keys without a migration.
-
----
+This layout is a hard contract — archives written by the pre-2.0 Objective-C version decode unchanged on 2.0+. Do not change the key, the `sharedGroup` constant, the class name, or the coder keys without a migration plan.
 
 ## Testing seams
 
-Useful when writing tests against code that depends on YCFirstTime:
-
 ```swift
-let firstTime = YCFirstTime()            // fresh instance, bypasses the singleton
-firstTime.versionProvider = { "2.0" }    // fake CFBundleShortVersionString
+let firstTime = YCFirstTime()           // fresh instance, bypasses the singleton
+firstTime.versionProvider = { "2.0" }   // fake CFBundleShortVersionString
 firstTime.nowProvider     = { fixedDate } // fake clock
 ```
 
-Both providers default to `Bundle.main` / `Date()`. Set to `nil` to restore defaults.
-
----
+Both default to `Bundle.main` / `Date()`. Set to `nil` to restore defaults.
 
 ## When not to use it
 
-- **Cross-device state.** This stores to `UserDefaults.standard`; it does not sync to iCloud or your backend.
-- **High-frequency / hot-path gating.** Every successful execution re-archives the entire dict to `UserDefaults`.
-- **Cryptographic or high-value gating.** `UserDefaults` is trivially editable on jailbroken devices.
-
----
+- **Cross-device state** — no iCloud sync. Store it in CloudKit instead.
+- **Hot-path gating** — every success re-archives the whole dict.
+- **Security-sensitive gating** — `UserDefaults` is editable on jailbroken devices.
 
 ## Contributors
 
