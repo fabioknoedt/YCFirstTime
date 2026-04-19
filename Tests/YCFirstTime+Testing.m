@@ -6,7 +6,13 @@
 
 @implementation YCFirstTime (Testing)
 
-+ (instancetype)newInstanceForTesting
+// Accessors are synthesized by the class extension in YCFirstTime.m. Declaring
+// them @dynamic here prevents the category from trying to re-synthesize and
+// tells the compiler the implementation is provided elsewhere.
+@dynamic versionProvider;
+@dynamic nowProvider;
+
++ (instancetype)makeTestInstance
 {
     return [[self alloc] init];
 }

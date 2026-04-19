@@ -1,5 +1,4 @@
 import XCTest
-import YCFirstTime
 
 /// Behavioral pin-down tests for YCFirstTime. These tests exist to give us
 /// confidence when rewriting the library in Swift — the same suite must pass
@@ -118,7 +117,7 @@ final class YCFirstTimeTests: XCTestCase {
     func test_executeOncePerInterval_runsAgainAfterInterval() {
         let start = Date(timeIntervalSince1970: 1_700_000_000)
         var now = start
-        let sut = YCFirstTime.newInstanceForTesting()
+        let sut = YCFirstTime.makeTestInstance()
         sut.versionProvider = { "1.0" }
         sut.nowProvider = { now }
 
@@ -145,7 +144,7 @@ final class YCFirstTimeTests: XCTestCase {
         // TODO(swift-port): fix to 86_400 and flip this assertion.
         let start = Date(timeIntervalSince1970: 1_700_000_000)
         var now = start
-        let sut = YCFirstTime.newInstanceForTesting()
+        let sut = YCFirstTime.makeTestInstance()
         sut.versionProvider = { "1.0" }
         sut.nowProvider = { now }
 
@@ -229,13 +228,12 @@ final class YCFirstTimeTests: XCTestCase {
         guard let data = UserDefaults.standard.data(forKey: kYCFirstTimeDefaultsKey) else {
             return XCTFail("No archive persisted")
         }
-        let allowed: Set<AnyHashable> = [
+        let allowed: [AnyClass] = [
             NSMutableDictionary.self, NSDictionary.self,
             NSString.self, NSDate.self, YCFirstTimeObject.self,
-        ] as Set<AnyHashable>
+        ]
         let decoded = try? NSKeyedUnarchiver.unarchivedObject(
-            ofClasses: Array(allowed) as! [AnyClass],
-            from: data
+            ofClasses: allowed, from: data
         ) as? NSDictionary
 
         XCTAssertNotNil(decoded)

@@ -1,5 +1,4 @@
 import XCTest
-import YCFirstTime
 
 final class YCFirstTimeObjectTests: XCTestCase {
 
