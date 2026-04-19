@@ -43,7 +43,7 @@ private let kSecondsPerDay: TimeInterval = 86_400
 /// - ``versionProvider``
 /// - ``nowProvider``
 @objc(YCFirstTime)
-public final class YCFirstTime: NSObject {
+public final class YCFirstTime: NSObject, @unchecked Sendable {
 
     private var fkDict: NSMutableDictionary
 

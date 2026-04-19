@@ -16,7 +16,7 @@ import Foundation
 /// don't construct or inspect this directly — it's public only because
 /// `NSSecureCoding` and the archive format require it.
 @objc(YCFirstTimeObject)
-public final class YCFirstTimeObject: NSObject, NSSecureCoding {
+public final class YCFirstTimeObject: NSObject, NSSecureCoding, @unchecked Sendable {
 
     /// The app version (`CFBundleShortVersionString`) captured the last time
     /// the associated block ran.
