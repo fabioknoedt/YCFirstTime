@@ -232,13 +232,17 @@ final class YCFirstTimeTests: XCTestCase {
             NSMutableDictionary.self, NSDictionary.self,
             NSString.self, NSDate.self, YCFirstTimeObject.self,
         ]
-        let decoded = try? NSKeyedUnarchiver.unarchivedObject(
+        let decoded = (try? NSKeyedUnarchiver.unarchivedObject(
             ofClasses: allowed, from: data
-        ) as? NSDictionary
+        )) as? NSDictionary
 
-        XCTAssertNotNil(decoded)
-        let group = decoded?["sharedGroup"] as? NSDictionary
-        XCTAssertNotNil(group, "Archive top-level must contain 'sharedGroup' key")
-        XCTAssertTrue(group?["k"] is YCFirstTimeObject)
+        guard let decoded else {
+            return XCTFail("Archive did not decode into an NSDictionary")
+        }
+        guard let group = decoded["sharedGroup"] as? NSDictionary else {
+            return XCTFail("Archive top-level must contain 'sharedGroup' key")
+        }
+        XCTAssertNotNil(group["k"] as? YCFirstTimeObject,
+                        "'sharedGroup' must map block key to YCFirstTimeObject")
     }
 }
