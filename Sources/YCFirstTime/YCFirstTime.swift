@@ -198,7 +198,7 @@ public final class YCFirstTime: NSObject, @unchecked Sendable {
         }
         guard let block else { return }
         block()
-        saveExecution(forKey: key, forGroup: kSharedGroup)
+        saveExecution(forKey: key)
     }
 
     private func alreadyExecuted(
@@ -206,11 +206,10 @@ public final class YCFirstTime: NSObject, @unchecked Sendable {
         perVersion: Bool,
         everyXDays days: Float
     ) -> Bool {
-        guard let info = info(forBlock: key, forGroup: kSharedGroup) else { return false }
+        guard let info = info(forBlock: key) else { return false }
 
-        if perVersion {
-            let currentVersion = versionProvider?() ?? Self.defaultVersion()
-            if currentVersion != info.lastVersion { return false }
+        if perVersion, versionProvider?() != info.lastVersion {
+            return false
         }
 
         if days > 0, let lastTime = info.lastTime {
@@ -222,32 +221,26 @@ public final class YCFirstTime: NSObject, @unchecked Sendable {
         return true
     }
 
-    private func saveExecution(forKey key: String, forGroup group: String) {
-        let info = info(forBlock: key, forGroup: group) ?? YCFirstTimeObject()
-        info.lastVersion = versionProvider?() ?? Self.defaultVersion()
+    private func saveExecution(forKey key: String) {
+        let info = info(forBlock: key) ?? YCFirstTimeObject()
+        info.lastVersion = versionProvider?()
         info.lastTime = nowProvider?() ?? Date()
-        setInfo(info, forBlock: key, forGroup: group)
+        setInfo(info, forBlock: key)
     }
 
-    private func info(forBlock key: String, forGroup group: String) -> YCFirstTimeObject? {
-        let resolvedGroup = group.isEmpty ? kSharedGroup : group
-        let groupDict = fkDict[resolvedGroup] as? NSDictionary
-        return groupDict?[key] as? YCFirstTimeObject
+    private func info(forBlock key: String) -> YCFirstTimeObject? {
+        let group = fkDict[kSharedGroup] as? NSDictionary
+        return group?[key] as? YCFirstTimeObject
     }
 
-    private func setInfo(_ info: YCFirstTimeObject, forBlock key: String, forGroup group: String) {
-        let resolvedGroup = group.isEmpty ? kSharedGroup : group
-        let groupDict = (fkDict[resolvedGroup] as? NSMutableDictionary) ?? NSMutableDictionary()
-        groupDict[key] = info
-        fkDict[resolvedGroup] = groupDict
+    private func setInfo(_ info: YCFirstTimeObject, forBlock key: String) {
+        let group = (fkDict[kSharedGroup] as? NSMutableDictionary) ?? NSMutableDictionary()
+        group[key] = info
+        fkDict[kSharedGroup] = group
         saveDictionary()
     }
 
     // MARK: - Persistence
-
-    private static func defaultVersion() -> String? {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-    }
 
     private static func loadDictionary() -> NSMutableDictionary {
         guard let data = UserDefaults.standard.data(forKey: kDefaultsKey) else {
@@ -262,10 +255,15 @@ public final class YCFirstTime: NSObject, @unchecked Sendable {
     }
 
     private func saveDictionary() {
-        guard let data = try? NSKeyedArchiver.archivedData(
+        // `try!` is deliberate. The only values we ever place in `fkDict` are
+        // `YCFirstTimeObject` instances (NSSecureCoding-compliant) keyed by
+        // `String`, so archiving cannot fail under `requiringSecureCoding:true`.
+        // Crashing here would indicate a programming error, not a runtime
+        // condition — silent data loss is worse.
+        let data = try! NSKeyedArchiver.archivedData(
             withRootObject: fkDict,
             requiringSecureCoding: true
-        ) else { return }
+        )
         UserDefaults.standard.set(data, forKey: kDefaultsKey)
     }
 }

@@ -99,6 +99,59 @@ final class YCFirstTimeTests: XCTestCase {
         XCTAssertEqual(count, 2)
     }
 
+    func test_executeOncePerVersion_withAfterFirstTimeBlock() {
+        // Covers the 4-arg per-version variant: per-version "once" runs on
+        // first call and on version bumps; afterBlock runs on repeats within
+        // the same version.
+        let sut = YCFirstTime.makeForTest(version: "1.0")
+        var first = 0, after = 0
+
+        sut.executeOncePerVersion(
+            { first += 1 },
+            executeAfterFirstTime: { after += 1 },
+            forKey: "k"
+        )
+        XCTAssertEqual(first, 1)
+        XCTAssertEqual(after, 0)
+
+        sut.executeOncePerVersion(
+            { first += 1 },
+            executeAfterFirstTime: { after += 1 },
+            forKey: "k"
+        )
+        XCTAssertEqual(first, 1)
+        XCTAssertEqual(after, 1)
+
+        sut.versionProvider = { "1.1" }
+        sut.executeOncePerVersion(
+            { first += 1 },
+            executeAfterFirstTime: { after += 1 },
+            forKey: "k"
+        )
+        XCTAssertEqual(first, 2, "version bump re-runs the first-time block")
+        XCTAssertEqual(after, 1)
+    }
+
+    func test_loadDictionary_handlesCorruptArchive() {
+        // Exercises the `?? NSMutableDictionary()` fallback in
+        // loadDictionary(): when the stored data isn't a valid archive, the
+        // library must initialize empty rather than crash or throw.
+        UserDefaults.standard.set(
+            Data([0xDE, 0xAD, 0xBE, 0xEF]),
+            forKey: kYCFirstTimeDefaultsKey
+        )
+
+        let sut = YCFirstTime.makeForTest(version: "1.0")
+
+        XCTAssertFalse(sut.blockWasExecuted("anything"),
+                       "Corrupt archive must behave like a fresh install")
+
+        // And the instance must be usable after recovery.
+        var ran = 0
+        sut.executeOnce({ ran += 1 }, forKey: "k")
+        XCTAssertEqual(ran, 1)
+    }
+
     func test_executeOncePerVersion_usesExactStringEquality() {
         // Pins current behavior at YCFirstTime.m:187 — "1.0" and "1.0.0" are
         // different. A Swift port should preserve this unless we decide to
