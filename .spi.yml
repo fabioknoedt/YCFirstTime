@@ -1,0 +1,7 @@
+# Swift Package Index build + documentation configuration.
+# Docs: https://swiftpackageindex.com/swiftpackageindex/spimanifest/documentation
+version: 1
+builder:
+  configs:
+    - platform: ios
+      documentation_targets: [YCFirstTime]
