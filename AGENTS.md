@@ -86,6 +86,7 @@ pod 'YCFirstTime', '~> 2.0'
 | The full public API with docs | `Sources/YCFirstTime/YCFirstTime.swift` (every public symbol has `///` comments) |
 | Use-case snippets | `Examples/` |
 | Question-shaped recipes | `FAQ.md` |
+| Upgrading from 1.x to 2.x | `MIGRATING.md` |
 | Why a change was made | `CHANGELOG.md` and git log |
 | The persistence format (don't break it) | README → "Persistence contract" |
 | How to contribute | `CONTRIBUTING.md` |
