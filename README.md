@@ -1,110 +1,172 @@
-YCFirstTime
-===========
-[![Pod Version](http://img.shields.io/cocoapods/v/YCFirstTime.svg?style=flat)](http://cocoadocs.org/docsets/YCFirstTime/)
-[![CI passing](https://travis-ci.org/yuppiu/YCFirstTime.svg?branch=master)](https://travis-ci.org/yuppiu/YCFirstTime.svg?branch=master)
-[![Pod Platform](http://img.shields.io/cocoapods/p/YCFirstTime.svg?style=flat)](http://cocoadocs.org/docsets/YCFirstTime/)
-[![Pod License](http://img.shields.io/cocoapods/l/YCFirstTime.svg?style=flat)](https://github.com/yuppiu/YCFirstTime/blob/master/LICENSE)
-[![Dependency Status](https://www.versioneye.com/objective-c/YCFirstTime/1.1.2/badge.svg?style=flat)](https://www.versioneye.com/objective-c/YCFirstTime)
-[![Reference Status](https://www.versioneye.com/objective-c/YCFirstTime/reference_badge.svg?style=flat)](https://www.versioneye.com/objective-c/YCFirstTime/references)
+# YCFirstTime
 
-A light-weight library to execute Objective-C codes only once in app life or version life. Execute code/blocks only for the first time the app runs, for example.
+A tiny Swift library for running a block of code **once** per install, **once per app version**, or **once per N days**. State is persisted in `UserDefaults` so it survives relaunches. Fully `@objc`-compatible — works from both Swift and Objective-C.
 
-Installation
-------------
+- **Language:** Swift 5 (ported from Objective-C; archive format preserved)
+- **Platform:** iOS 15+
+- **Thread safety:** Not safe for concurrent calls on the same key. Call from the main thread.
+- **Persistence:** One `UserDefaults` key (`"YCFirstTime"`) holding an `NSKeyedArchiver` dict
+- **Dependencies:** Foundation only
 
-We recommend you to install this project using CocoaPods:
+---
 
-### Installation with CocoaPods
+## At a glance
 
-[CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C, which automates and simplifies the process of using 3rd-party libraries like YCFirstTime in your projects.
+```swift
+import YCFirstTime
 
-#### Podfile
-
-```ruby
-platform :ios, '9.0'
-pod "YCFirstTime"
+// Runs once, ever, per install.
+YCFirstTime.shared.executeOnce({
+    showOnboarding()
+}, forKey: "onboarding.v1")
 ```
 
-Usage
-------------
+That's the whole API in one call. Five more methods cover the per-version and per-interval variants.
 
-#### Run a snippet of code only once per app installation.
-Use this option, for example, to run a welcome dialog or create a initial database.
-  ``` objc
+---
+
+## Installation
+
+### CocoaPods
+
+```ruby
+platform :ios, '15.0'
+pod 'YCFirstTime'
+```
+
+There is **no** `use_frameworks!` requirement.
+
+---
+
+## Public API
+
+The singleton is `YCFirstTime.shared`. All methods below are available on it.
+
+| Method | Runs the block when... |
+|---|---|
+| `executeOnce(_:forKey:)` | First time this key is ever seen on this install. |
+| `executeOnce(_:executeAfterFirstTime:forKey:)` | First time as above; the second block runs on every subsequent call. |
+| `executeOncePerVersion(_:forKey:)` | First time this key is seen on the current `CFBundleShortVersionString`. Re-runs on version bump. |
+| `executeOncePerVersion(_:executeAfterFirstTime:forKey:)` | Per-version as above, plus an alternate block for subsequent calls within the same version. |
+| `executeOncePerInterval(_:forKey:withDaysInterval:)` | First time, then again after the given number of days has elapsed since the last run. |
+| `blockWasExecuted(_:) -> Bool` | Read-only check: has this key ever been marked executed? Ignores version and interval. |
+| `reset()` | Clears all recorded executions, in memory and on disk. |
+
+### Semantics
+
+- **Keys are global.** Pick unique strings (e.g. `"onboarding.v1"`, `"push.prompt"`).
+- **A `nil` / no-op block does not mark the key as executed.** A key is only marked executed when the block actually runs. Passing `nil` is a no-op.
+- **Version comparison is exact string equality.** `"1.0"` and `"1.0.0"` are different versions.
+- **Interval uses elapsed seconds divided by 86_400.** `withDaysInterval:` accepts a `Float`, so fractional days work (`0.5` = 12h).
+- **`blockWasExecuted` ignores version and interval.** It only answers "has this key ever been flagged?"
+
+---
+
+## Usage
+
+### Swift
+
+```swift
+import YCFirstTime
+
+let firstTime = YCFirstTime.shared
+
+// Once per install — e.g. onboarding, initial DB seed.
+firstTime.executeOnce({
+    seedDatabase()
+}, forKey: "db.seed.v1")
+
+// Once per app version — e.g. a "What's new" sheet.
+firstTime.executeOncePerVersion({
+    showWhatsNew()
+}, forKey: "whats-new")
+
+// Once per N days — e.g. rate prompt every 7 days.
+firstTime.executeOncePerInterval({
+    askForRating()
+}, forKey: "prompt.rating", withDaysInterval: 7)
+
+// Run A the first time, B every other time.
+firstTime.executeOnce({
+    showTutorialBubble()
+}, executeAfterFirstTime: {
+    showQuickTip()
+}, forKey: "feature.tutorial")
+
+// Read without side effects.
+if firstTime.blockWasExecuted("db.seed.v1") {
+    print("Seed already applied.")
+}
+
+// Nuke everything (e.g. a "Reset app" debug action).
+firstTime.reset()
+```
+
+### Objective-C
+
+The library exports the same selectors used by the pre-2.0 Objective-C version, so existing call sites keep working:
+
+```objc
+@import YCFirstTime;
+
 [[YCFirstTime shared] executeOnce:^{
-      
-	/// Some code that should run only ONCE per app installation.
-  
-} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET"];
-  ```
-  
-#### Run a snippet of code every new app version:
-You could use this to show new features of a new version to the user.
-  ``` objc
-[[YCFirstTime shared] executeOncePerVersion:^{
-      
-	/// Some code that should run only ONCE per app version.
-	/// This code will run in your version 1.0 and as well in the 1.1
+    [self showOnboarding];
+} forKey:@"onboarding.v1"];
 
-} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET"];
-  ```
-  
-#### Run a snippet of code every X days:
-	* User case 1: ask only one time for GPS approval (Location) every day or every second day.
-	* User case 2: ask only one time for Push notifications approval every 4 days.
-	* User case 3: ask to rate your app every 7 days.
-	* User case 4: ask to buy the PRO version every day.
-	* User case 5: ask for something else every X days/hours/minutes/seconds. The days parameter is a CGFloat, use like you want.
-
-  ``` objc
 [[YCFirstTime shared] executeOncePerInterval:^{
+    [self askForRating];
+} forKey:@"prompt.rating" withDaysInterval:7.0];
+```
 
-	/// Some code that should run only ONCE per app version.
-	/// This code will run in your version 1.0 and as well in the 1.1
+---
 
-} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET" withDaysInterval:2.0f];
-  ```
-  
-#### Run a snippet of code for the first time and then run another snippet of code from the second time on.
-This useful when you need to highlight some element for the first time but from this time on, you want to execute another code.
-  ``` objc
-[[YCFirstTime shared] executeOnce:^{
-            
-	/// Some code that should run only ONCE per app installation.
-            
-} executeAfterFirstTime:^{
-            
-	/// Another piece of code to run from the SECOND time on.
-            
-} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET"];
-  ```
+## File layout
 
-#### And, finally, you can use the feature above with the version checker as well.
-  ``` objc
-[[YCFirstTime shared] executeOncePerVersion:^{
-            
-	/// Some code that should run only ONCE per app installation.
-            
-} executeAfterFirstTime:^{
-            
-	/// Another piece of code to run from the SECOND time on.
-            
-} forKey:@"CHOOSE_AN_UNIQUE_KEY_FOR_THIS_SNIPPET"];
-  ```	
+```
+YCFirstTime.swift              Public API, singleton, core logic
+Classes/YCFirstTimeObject.swift Per-key state model (NSSecureCoding)
+Tests/                          XCTest suite (behavior pinning + migration contract)
+YCFirstTime.podspec             CocoaPods manifest
+.github/workflows/ci.yml        GitHub Actions: `pod lib lint` + tests
+```
 
-#### Reset all executions
+---
 
-If you want to remove all previous executions and start from zero, you can call:
-  ``` objc
-[[YCFirstTime shared] reset];
-  ```
-Support
-------------	
-	
-Runs fine in iOS6+ and requires ARC.
-	
-Contributors
-------------
+## Persistence contract
 
-* [Fabio Knoedt](https://github.com/fabioknoedt)
-<img align="right" src="https://travis-ci.com/img/made-in-berlin-badge.png" alt="Made in Berlin" />
+Archive state is stored in `UserDefaults.standard`:
+
+- **Key:** `"YCFirstTime"`
+- **Value:** `Data` produced by `NSKeyedArchiver.archivedData(withRootObject:requiringSecureCoding:)`
+- **Root object:** `NSMutableDictionary` shaped `{ "sharedGroup": { blockKey: YCFirstTimeObject } }`
+- **`YCFirstTimeObject`** encodes two fields: `lastVersion: String?` (`CFBundleShortVersionString`) and `lastTime: Date?`
+
+This layout is a hard contract — archives written by the pre-2.0 Objective-C version decode unchanged on the Swift version. Do not change the UserDefaults key, the `sharedGroup` constant, the `YCFirstTimeObject` class name, or the `"lastVersion"` / `"lastTime"` coder keys without a migration.
+
+---
+
+## Testing seams
+
+Useful when writing tests against code that depends on YCFirstTime:
+
+```swift
+let firstTime = YCFirstTime()            // fresh instance, bypasses the singleton
+firstTime.versionProvider = { "2.0" }    // fake CFBundleShortVersionString
+firstTime.nowProvider     = { fixedDate } // fake clock
+```
+
+Both providers default to `Bundle.main` / `Date()`. Set to `nil` to restore defaults.
+
+---
+
+## When not to use it
+
+- **Cross-device state.** This stores to `UserDefaults.standard`; it does not sync to iCloud or your backend.
+- **High-frequency / hot-path gating.** Every successful execution re-archives the entire dict to `UserDefaults`.
+- **Cryptographic or high-value gating.** `UserDefaults` is trivially editable on jailbroken devices.
+
+---
+
+## Contributors
+
+- [Fabio Knoedt](https://github.com/fabioknoedt)
