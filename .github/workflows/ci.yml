@@ -7,7 +7,7 @@ on:
 
 jobs:
   pod-lint:
-    name: Pod lib lint
+    name: Pod lib lint + tests
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,8 +18,27 @@ jobs:
           pod --version
 
       - name: Lint podspec and run test_spec
-        # `pod lib lint` runs the test_spec by default (use --skip-tests to opt out).
-        run: pod lib lint YCFirstTime.podspec --allow-warnings --verbose
+        # `pod lib lint` runs the test_spec by default. We tee the output so
+        # the follow-up step can verify tests actually executed — a missing
+        # test_spec would otherwise pass lint silently.
+        run: |
+          set -o pipefail
+          pod lib lint YCFirstTime.podspec --allow-warnings --verbose 2>&1 \
+            | tee /tmp/pod-lint.log
+
+      - name: Verify test_spec executed and passed
+        run: |
+          set -e
+          if ! grep -qE "Test Suite '.*YCFirstTimeTests'.*passed" /tmp/pod-lint.log; then
+            echo "::error::YCFirstTimeTests did not run or did not pass."
+            echo "Expected an xcodebuild 'Test Suite ... passed' line for YCFirstTimeTests."
+            exit 1
+          fi
+          if ! grep -qE "Test Suite '.*YCFirstTimeObjectTests'.*passed" /tmp/pod-lint.log; then
+            echo "::error::YCFirstTimeObjectTests did not run or did not pass."
+            exit 1
+          fi
+          echo "All XCTest suites ran and passed."
 
   compile:
     name: Compile sources
