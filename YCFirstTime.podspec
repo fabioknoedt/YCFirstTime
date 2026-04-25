@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = 'YCFirstTime'
-  spec.version          = '2.0.0'
+  spec.version          = '2.1.0'
   spec.license          = { :type => 'MIT', :file => 'LICENSE' }
   spec.homepage         = 'https://github.com/fabioknoedt/YCFirstTime'
   spec.authors          = { 'Fabio Knoedt' => 'fabioknoedt@gmail.com' }
