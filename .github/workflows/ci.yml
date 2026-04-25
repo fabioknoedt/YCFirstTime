@@ -85,7 +85,7 @@ jobs:
           echo "coverage.lcov: $(wc -c < coverage.lcov) bytes, $(wc -l < coverage.lcov) lines"
 
       - name: Upload coverage as workflow artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-lcov
           path: coverage.lcov
