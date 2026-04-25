@@ -20,9 +20,6 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: ci
-    labels:
-      - ci
-      - dependencies
     groups:
       # Bundle minor + patch version bumps into a single PR per week so the
       # inbox doesn't fragment. Major bumps still come through as separate
