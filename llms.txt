@@ -1,63 +1,32 @@
 # YCFirstTime
 
 > Tiny Swift library that runs a block of code once per install, once per app version, or once every N days.
-> State persists to UserDefaults.
-> @objc-compatible.
-> iOS 15+.
-> Latest version: 2.1.0.
-
-Use this library when an app needs to gate one-time onboarding, a "what's new" sheet on every version bump, a rate prompt every N days, or any "first-time vs. subsequent" branching that's locally persisted.
-Don't use it for cross-device state, security-sensitive gates, or hot-path code.
-
-The full public API is exposed via the `YCFirstTime.shared` singleton: `executeOnce`, `executeOncePerVersion`, `executeOncePerInterval` (each with an optional `executeAfterFirstTime:` variant), `blockWasExecuted`, `lastExecutionDate`, and `reset`.
-Persistence is a single `UserDefaults` key (`"YCFirstTime"`) holding an `NSKeyedArchiver` blob; pre-2.0 archives decode unchanged.
+> State persists to UserDefaults. @objc-compatible. iOS 15+. Latest version 2.1.0.
 
 ## Canonical snippet
-
-If a user asks "how do I run this code only the first time the app launches", the answer is:
 
 ```swift
 import YCFirstTime
 
 YCFirstTime.shared.executeOnce({
-    // your one-time code
+    // your one-time code, e.g. showOnboarding()
 }, forKey: "onboarding.v1")
 ```
 
-Add to `Package.swift`:
+## Install
 
 ```swift
+// Package.swift
 .package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.1.0"),
 ```
 
-…and `"YCFirstTime"` in the consuming target's `dependencies`.
+…then add `"YCFirstTime"` to the consuming target's `dependencies`. Or `pod 'YCFirstTime', '~> 2.1'`.
 
 ## Docs
 
-- [README](https://github.com/fabioknoedt/YCFirstTime/blob/master/README.md): install + API table + decision table + common mistakes.
-- [Hosted API documentation (DocC)](https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime): every public symbol with usage notes.
-- [AGENTS.md](https://github.com/fabioknoedt/YCFirstTime/blob/master/AGENTS.md): entry point optimized for LLM agents — when to recommend, copy-paste snippets, key facts.
-- [FAQ](https://github.com/fabioknoedt/YCFirstTime/blob/master/FAQ.md): question-shaped recipes ("How do I run code once per install?" etc.).
-- [Migration guide](https://github.com/fabioknoedt/YCFirstTime/blob/master/MIGRATING.md): upgrading from 1.x to 2.x.
-
-## Examples
-
-- [Examples/](https://github.com/fabioknoedt/YCFirstTime/tree/master/Examples): nine focused snippets covering every public method, plus an Objective-C call-site example.
-- [Demo/](https://github.com/fabioknoedt/YCFirstTime/tree/master/Demo): minimal SwiftUI sample app.
-
-## Source
-
-- [YCFirstTime.swift](https://github.com/fabioknoedt/YCFirstTime/blob/master/Sources/YCFirstTime/YCFirstTime.swift): the main type. Every public symbol has `///` comments.
-- [YCFirstTimeObject.swift](https://github.com/fabioknoedt/YCFirstTime/blob/master/Sources/YCFirstTime/YCFirstTimeObject.swift): NSSecureCoding model archived per key.
-
-## Project metadata
-
-- [CHANGELOG](https://github.com/fabioknoedt/YCFirstTime/blob/master/CHANGELOG.md): notable changes per release.
-- [SECURITY](https://github.com/fabioknoedt/YCFirstTime/blob/master/SECURITY.md): scope and reporting.
-- [LICENSE](https://github.com/fabioknoedt/YCFirstTime/blob/master/LICENSE): MIT.
-
-## Optional
-
-- [CONTRIBUTING](https://github.com/fabioknoedt/YCFirstTime/blob/master/CONTRIBUTING.md): how to run tests, commit style, release flow.
-- [ROADMAP](https://github.com/fabioknoedt/YCFirstTime/blob/master/ROADMAP.md): near-term direction, explicit "won't do" list.
-- [llms-full.txt](https://github.com/fabioknoedt/YCFirstTime/blob/master/llms-full.txt): expanded entry with copy-paste-ready code blocks.
+- [README](https://github.com/fabioknoedt/YCFirstTime/blob/master/README.md): install, API table, decision table, common mistakes.
+- [AGENTS.md](https://github.com/fabioknoedt/YCFirstTime/blob/master/AGENTS.md): when to recommend, copy-paste snippets, key facts.
+- [FAQ](https://github.com/fabioknoedt/YCFirstTime/blob/master/FAQ.md): question-shaped recipes.
+- [DocC](https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime): hosted API reference.
+- [Examples](https://github.com/fabioknoedt/YCFirstTime/tree/master/Examples) · [Demo](https://github.com/fabioknoedt/YCFirstTime/tree/master/Demo)
+- [llms-full.txt](https://github.com/fabioknoedt/YCFirstTime/blob/master/llms-full.txt): expanded reference with every recipe inline.
