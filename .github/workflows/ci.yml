@@ -55,12 +55,15 @@ jobs:
       # Caching .build/ keyed on Package.swift + Package.resolved + source
       # hash. Subsequent runs reuse compiled modules — incremental builds
       # in SPM are fast, and Swift detects source changes correctly.
+      #
+      # We deliberately DO NOT cache ~/Library/Developer/Xcode/DerivedData:
+      # `swift test` never writes there (only Xcode does), and starting with
+      # actions/cache@v5 the post-step fails when asked to save a path that
+      # doesn't exist.
       - name: Cache SwiftPM build
         uses: actions/cache@v4
         with:
-          path: |
-            .build
-            ~/Library/Developer/Xcode/DerivedData
+          path: .build
           key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift', 'Package.resolved', 'Sources/**/*.swift', 'Tests/**/*.swift') }}
           restore-keys: ${{ runner.os }}-spm-
 
