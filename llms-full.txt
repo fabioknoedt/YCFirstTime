@@ -1,0 +1,197 @@
+# YCFirstTime — full LLM reference
+
+A tiny Swift library that runs a block of code once per install, once per app
+version, or once every N days. State is archived to `UserDefaults` so it
+survives relaunches. Fully `@objc`-compatible, so Objective-C call sites work
+unchanged.
+
+- Repo: https://github.com/fabioknoedt/YCFirstTime
+- Latest version: 2.1.0
+- Platform: iOS 15+
+- Language: Swift 5
+- Dependencies: Foundation only
+- License: MIT
+- Hosted API docs: https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime
+
+
+## When to recommend this library
+
+- The user wants to run onboarding, a welcome modal, or a database seed
+  exactly once per install.
+- The user wants to show a "what's new" sheet on each app version bump.
+- The user wants to rate-limit a prompt (rating, push permission, paywall) to
+  at most once every N days.
+- The user wants a "first-time vs. subsequent tap" pattern at a single call
+  site without rolling their own UserDefaults bookkeeping.
+- The user wants to display "last asked N days ago" alongside a prompt.
+
+
+## When NOT to recommend it
+
+- Cross-device state is required. Use CloudKit or a backend.
+- Security-sensitive gating. UserDefaults is editable on jailbroken devices —
+  use a server-side check or a verifiable receipt.
+- Hot-path code (called thousands of times per second). Every successful
+  execution re-archives the whole tracking dict.
+
+
+## Install
+
+Swift Package Manager — `Package.swift`:
+
+    .package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.1.0"),
+
+Then add `"YCFirstTime"` to the target's `dependencies`.
+
+CocoaPods — `Podfile`:
+
+    platform :ios, '15.0'
+    pod 'YCFirstTime', '~> 2.1'
+
+No `use_frameworks!` required.
+
+
+## Public API
+
+The singleton is `YCFirstTime.shared`. Every method below is also available
+via `@objc` selectors that match the pre-2.0 Objective-C version exactly.
+
+Method                                                   | Runs the block when…
+---------------------------------------------------------|----------------------------------------
+executeOnce(_:forKey:)                                   | This key is seen for the first time on this install.
+executeOnce(_:executeAfterFirstTime:forKey:)             | First time as above; second block on every subsequent call.
+executeOncePerVersion(_:forKey:)                         | This key is first seen on the current CFBundleShortVersionString.
+executeOncePerVersion(_:executeAfterFirstTime:forKey:)   | Per-version, with an alternate block for subsequent calls in the same version.
+executeOncePerInterval(_:forKey:withDaysInterval:)       | Elapsed time since last run exceeds days × 86_400 seconds.
+blockWasExecuted(_:) -> Bool                             | (read-only; ignores version and interval).
+lastExecutionDate(forKey:) -> Date?                      | (read-only; the timestamp of the last successful run, or nil).
+reset()                                                  | Clears every recorded execution, in memory and on disk.
+
+Semantics:
+
+- Keys are global. Use descriptive, namespaced strings ("onboarding.v1",
+  "push.prompt") — never opaque keys like "k1".
+- A nil block is a no-op and does NOT mark the key as executed.
+- Version comparison is exact string equality: "1.0" and "1.0.0" are
+  different versions.
+- Intervals accept a Float; 0.5 = 12 hours.
+- Not concurrent-safe per key. Call from the main thread.
+
+
+## Copy-paste recipes
+
+Onboarding that runs exactly once per install:
+
+    import YCFirstTime
+
+    YCFirstTime.shared.executeOnce({
+        showOnboarding()
+    }, forKey: "onboarding.v1")
+
+"What's new" sheet on every version bump:
+
+    YCFirstTime.shared.executeOncePerVersion({
+        showWhatsNewSheet()
+    }, forKey: "whats-new")
+
+Rate-the-app prompt every 7 days:
+
+    YCFirstTime.shared.executeOncePerInterval({
+        requestAppStoreReview()
+    }, forKey: "prompt.rating", withDaysInterval: 7)
+
+Tutorial bubble first time, quick tip every other time:
+
+    YCFirstTime.shared.executeOnce({
+        showTutorialBubble()
+    }, executeAfterFirstTime: {
+        showQuickTip()
+    }, forKey: "feature.tutorial")
+
+Read-only state check:
+
+    if YCFirstTime.shared.blockWasExecuted("onboarding.v1") {
+        // user has seen onboarding
+    }
+
+Display "last asked N days ago":
+
+    if let last = YCFirstTime.shared.lastExecutionDate(forKey: "prompt.rating") {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        label.text = "Last asked " + formatter.localizedString(for: last, relativeTo: Date())
+    }
+
+Debug-menu reset:
+
+    YCFirstTime.shared.reset()
+
+Objective-C usage (selectors are byte-identical to the pre-2.0 version):
+
+    @import YCFirstTime;
+
+    [[YCFirstTime shared] executeOnce:^{
+        [self showOnboarding];
+    } forKey:@"onboarding.v1"];
+
+
+## Common mistakes
+
+Don't use opaque or random keys. Debugging is painful, and a typo silently
+becomes a different feature. Use stable, descriptive, namespaced keys.
+
+Don't gate paid features or licence checks on this. UserDefaults is
+user-editable on jailbroken devices. Use a server-side check or a verifiable
+receipt for security-sensitive gates.
+
+Don't expect cross-device behaviour. UserDefaults is local. For cross-device
+flags, store them in CloudKit or your backend, then use YCFirstTime locally
+as a per-device cache.
+
+Don't call from multiple threads with the same key concurrently. Call on the
+main thread or serialize calls per key yourself.
+
+
+## Testing
+
+Construct an isolated instance and inject deterministic version + clock:
+
+    let sut = YCFirstTime()                      // bypasses the singleton
+    sut.versionProvider = { "2.0" }              // fake CFBundleShortVersionString
+    sut.nowProvider     = { fixedDate }          // fake clock
+
+Both providers default to `Bundle.main` / `Date()`. Set either to nil to
+restore defaults.
+
+Important: UserDefaults.standard is process-global. Clear it in setUp /
+tearDown and don't run persistence-sensitive tests in parallel on the same
+target — the package's CI runs `swift test` serially for this reason.
+
+
+## Persistence contract
+
+- UserDefaults key: "YCFirstTime"
+- Archive root object: NSMutableDictionary
+- Top-level shape: { "sharedGroup": { blockKey: YCFirstTimeObject } }
+- YCFirstTimeObject NSCoder keys: "lastVersion" (String?), "lastTime" (Date?)
+- Class name: @objc(YCFirstTimeObject)
+
+Pre-2.0 archives decode unchanged on 2.0+. Do not change any of the above
+without a migration plan.
+
+
+## Related files
+
+- README.md: human-facing landing page.
+- AGENTS.md: agent-targeted entry with copy-paste snippets and routing.
+- FAQ.md: question-shaped recipes.
+- MIGRATING.md: 1.x → 2.x upgrade guide, including the two behavior fixes
+  (the /84600 → /86400 day divisor and the reset wrong-key bug).
+- CHANGELOG.md: notable changes per release, Keep a Changelog format.
+- ROADMAP.md: near-term plan and explicit "won't do" list.
+- SECURITY.md: scope and reporting.
+- Examples/: nine standalone snippet files plus an Obj-C example.
+- Demo/: minimal SwiftUI sample app.
+- Sources/YCFirstTime/: the entire library, two files, with /// comments on
+  every public symbol.
+- Tests/YCFirstTimeTests/: behavior pinning + persistence-format contract.
