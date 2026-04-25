@@ -1,0 +1,53 @@
+name: Publish to CocoaPods
+
+# Triggers when a GitHub Release is published. The release's tag name must
+# match the version declared in YCFirstTime.podspec — the verification step
+# below fails the run otherwise, preventing trunk pushes that disagree with
+# the source of truth.
+#
+# Manual fallback: workflow_dispatch lets you re-run the publish for the
+# version currently in the podspec, without creating a new release.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: pod trunk push
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Show environment
+        run: |
+          xcodebuild -version
+          pod --version
+
+      - name: Verify podspec version matches the release tag
+        # Skipped on workflow_dispatch (no GITHUB_REF_NAME tag context). On a
+        # release event GITHUB_REF_NAME is the tag (e.g. "2.0.0").
+        if: github.event_name == 'release'
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          SPEC_VERSION=$(grep -E "spec\.version\s*=" YCFirstTime.podspec \
+            | head -1 \
+            | sed -E "s/.*['\"]([^'\"]+)['\"].*/\1/")
+          echo "Release tag:    $TAG"
+          echo "Podspec version: $SPEC_VERSION"
+          if [ "$TAG" != "$SPEC_VERSION" ]; then
+            echo "::error::Release tag '$TAG' does not match podspec version '$SPEC_VERSION'. Bump the podspec on master first, then create the release."
+            exit 1
+          fi
+
+      - name: Lint podspec
+        # Same lint our CI runs on every push, repeated here as a last guard
+        # before the irreversible trunk push.
+        run: pod lib lint YCFirstTime.podspec --allow-warnings --skip-tests --fail-fast
+
+      - name: Push to CocoaPods trunk
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: pod trunk push YCFirstTime.podspec --allow-warnings --verbose

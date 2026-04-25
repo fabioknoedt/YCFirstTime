@@ -56,4 +56,22 @@ The library is single-threaded per key. If you introduce concurrent access patte
 
 ## Releases
 
-Semantic versioning. Tag releases on `master` as `X.Y.Z`. After a tag is pushed, update the CocoaPods trunk (`pod trunk push YCFirstTime.podspec`) and the Swift Package Index picks up the tag automatically.
+Semantic versioning. The release flow is:
+
+1. Bump `spec.version` in `YCFirstTime.podspec` to `X.Y.Z` and promote the
+   `[Unreleased]` block in `CHANGELOG.md` to `[X.Y.Z]` — same commit, on master.
+2. Create a GitHub Release with tag `X.Y.Z` targeting `master`. Use the
+   `[X.Y.Z]` CHANGELOG block as the release body.
+3. The **Publish to CocoaPods** workflow (`.github/workflows/publish.yml`)
+   fires on the release, verifies the tag matches the podspec, lints, and
+   runs `pod trunk push`. Swift Package Index picks up the tag on its own.
+
+The publish workflow needs a one-time secret set on the repo: register a
+trunk session locally with `pod trunk register <email> "<name>"`, then copy
+the password line for `trunk.cocoapods.org` from `~/.netrc` into a GitHub
+repo secret named `COCOAPODS_TRUNK_TOKEN`.
+
+If you ever need to re-publish without cutting a new release, run the
+**Publish to CocoaPods** workflow manually via the Actions tab
+(workflow_dispatch). It uses whatever version is currently in
+`YCFirstTime.podspec` on `master`.
