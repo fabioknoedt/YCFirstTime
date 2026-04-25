@@ -1,0 +1,33 @@
+# Dependabot configuration.
+#
+# Watches GitHub Actions only — the library has no runtime dependencies, and
+# Swift Package Manager isn't a Dependabot ecosystem for libraries (it would
+# only matter for an app consuming this package).
+#
+# Weekly cadence is right for a small project: noisy enough to surface
+# deprecations like #14 promptly, quiet enough that returning to a stack of
+# 30 PRs after a few months away never happens.
+#
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    labels:
+      - ci
+      - dependencies
+    groups:
+      # Bundle minor + patch version bumps into a single PR per week so the
+      # inbox doesn't fragment. Major bumps still come through as separate
+      # PRs because they may need code changes.
+      github-actions-minor-and-patch:
+        update-types:
+          - minor
+          - patch
