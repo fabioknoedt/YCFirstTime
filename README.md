@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/fabioknoedt/YCFirstTime/actions/workflows/ci.yml/badge.svg)](https://github.com/fabioknoedt/YCFirstTime/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/fabioknoedt/YCFirstTime/branch/master/graph/badge.svg)](https://codecov.io/gh/fabioknoedt/YCFirstTime)
-[![SwiftPM](https://img.shields.io/badge/SwiftPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
+[![Swift versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ffabioknoedt%2FYCFirstTime%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/fabioknoedt/YCFirstTime)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ffabioknoedt%2FYCFirstTime%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/fabioknoedt/YCFirstTime)
 [![CocoaPods](https://img.shields.io/cocoapods/v/YCFirstTime.svg)](https://cocoapods.org/pods/YCFirstTime)
-[![Platform](https://img.shields.io/badge/platform-iOS%2015%2B-lightgrey.svg)](https://github.com/fabioknoedt/YCFirstTime)
 [![License](https://img.shields.io/github/license/fabioknoedt/YCFirstTime.svg)](LICENSE)
 
 Run Swift code once per install, once per app version, or once every N days. Persists to `UserDefaults`. `@objc`-compatible — works from Swift and Objective-C unchanged.
