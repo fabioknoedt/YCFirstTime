@@ -7,7 +7,9 @@
 [![CocoaPods](https://img.shields.io/cocoapods/v/YCFirstTime.svg)](https://cocoapods.org/pods/YCFirstTime)
 [![License](https://img.shields.io/github/license/fabioknoedt/YCFirstTime.svg)](LICENSE)
 
-Run Swift code once per install, once per app version, or once every N days. Persists to `UserDefaults`. `@objc`-compatible — works from Swift and Objective-C unchanged.
+Run Swift code once per install, once per app version, or once every N days.
+State persists to `UserDefaults`.
+`@objc`-compatible — works from Swift and Objective-C unchanged.
 
 **Common use cases:** first-launch onboarding, one-time database seeding, "what's new" sheets on each version bump, rate-the-app prompts every N days, push-notification permission re-prompts, feature-rollout gates, first-time tutorial bubbles that turn into quick tips on subsequent taps.
 
@@ -21,13 +23,26 @@ Run Swift code once per install, once per app version, or once every N days. Per
 
 ### 1. Add the dependency
 
-**Swift Package Manager** — `Package.swift`:
+**Swift Package Manager** — full `Package.swift` example:
 
 ```swift
-.package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.1.0"),
-```
+// swift-tools-version:5.9
+import PackageDescription
 
-…and add `"YCFirstTime"` to your target's `dependencies`.
+let package = Package(
+    name: "MyApp",
+    platforms: [.iOS(.v15)],
+    dependencies: [
+        .package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.1.0"),
+    ],
+    targets: [
+        .target(
+            name: "MyApp",
+            dependencies: ["YCFirstTime"]
+        ),
+    ]
+)
+```
 
 **Swift Package Manager** — Xcode UI: **File → Add Package Dependencies…** and paste `https://github.com/fabioknoedt/YCFirstTime.git`. Pick the latest version.
 
@@ -51,7 +66,8 @@ YCFirstTime.shared.executeOnce({
 }, forKey: "onboarding.v1")
 ```
 
-That's the whole loop — one import, one call. More patterns below.
+That's the whole loop — one import, one call.
+More patterns below.
 
 ## Choosing the right method
 
@@ -85,7 +101,8 @@ Semantics:
 - Version comparison is **exact string equality** (`"1.0"` ≠ `"1.0.0"`).
 - Intervals accept a `Float` — `0.5` = 12 hours.
 
-Full Swift and Obj-C call-site examples live in [`Examples/`](Examples/). A SwiftUI sample app lives in [`Demo/`](Demo/).
+Full Swift and Obj-C call-site examples live in [`Examples/`](Examples/).
+A SwiftUI sample app lives in [`Demo/`](Demo/).
 
 ## Common mistakes
 
@@ -124,9 +141,11 @@ DispatchQueue.global().async { YCFirstTime.shared.executeOnce({ ... }, forKey: "
 
 ## Persistence contract
 
-State is stored in `UserDefaults.standard` under key `"YCFirstTime"` as an `NSKeyedArchiver` blob shaped `{ "sharedGroup": { blockKey: YCFirstTimeObject } }`. `YCFirstTimeObject` encodes two fields, `lastVersion` and `lastTime`, under those coder keys.
+State is stored in `UserDefaults.standard` under key `"YCFirstTime"` as an `NSKeyedArchiver` blob shaped `{ "sharedGroup": { blockKey: YCFirstTimeObject } }`.
+`YCFirstTimeObject` encodes two fields, `lastVersion` and `lastTime`, under those coder keys.
 
-This layout is a hard contract — archives written by the pre-2.0 Objective-C version decode unchanged on 2.0+. Do not change the key, the `sharedGroup` constant, the class name, or the coder keys without a migration plan.
+This layout is a hard contract — archives written by the pre-2.0 Objective-C version decode unchanged on 2.0+.
+Do not change the key, the `sharedGroup` constant, the class name, or the coder keys without a migration plan.
 
 ## Testing seams
 
@@ -136,7 +155,8 @@ firstTime.versionProvider = { "2.0" }   // fake CFBundleShortVersionString
 firstTime.nowProvider     = { fixedDate } // fake clock
 ```
 
-Both default to `Bundle.main` / `Date()`. Set to `nil` to restore defaults.
+Both default to `Bundle.main` / `Date()`.
+Set to `nil` to restore defaults.
 
 ## When not to use it
 
@@ -158,7 +178,8 @@ Both default to `Bundle.main` / `Date()`. Set to `nil` to restore defaults.
 
 ## Liked it?
 
-If `YCFirstTime` saved you some work, a [GitHub star](https://github.com/fabioknoedt/YCFirstTime) helps other people find it. That's the whole ask.
+If `YCFirstTime` saved you some work, a [GitHub star](https://github.com/fabioknoedt/YCFirstTime) helps other people find it.
+That's the whole ask.
 
 ## Contributors
 

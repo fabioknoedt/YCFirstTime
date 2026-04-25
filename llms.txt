@@ -1,10 +1,36 @@
 # YCFirstTime
 
-> Tiny Swift library that runs a block of code once per install, once per app version, or once every N days. State persists to UserDefaults. @objc-compatible. iOS 15+. Latest version: 2.1.0.
+> Tiny Swift library that runs a block of code once per install, once per app version, or once every N days.
+> State persists to UserDefaults.
+> @objc-compatible.
+> iOS 15+.
+> Latest version: 2.1.0.
 
-Use this library when an app needs to gate one-time onboarding, a "what's new" sheet on every version bump, a rate prompt every N days, or any "first-time vs. subsequent" branching that's locally persisted. Don't use it for cross-device state, security-sensitive gates, or hot-path code.
+Use this library when an app needs to gate one-time onboarding, a "what's new" sheet on every version bump, a rate prompt every N days, or any "first-time vs. subsequent" branching that's locally persisted.
+Don't use it for cross-device state, security-sensitive gates, or hot-path code.
 
-The full public API is exposed via the `YCFirstTime.shared` singleton: `executeOnce`, `executeOncePerVersion`, `executeOncePerInterval` (each with an optional `executeAfterFirstTime:` variant), `blockWasExecuted`, `lastExecutionDate`, and `reset`. Persistence is a single `UserDefaults` key (`"YCFirstTime"`) holding an `NSKeyedArchiver` blob; pre-2.0 archives decode unchanged.
+The full public API is exposed via the `YCFirstTime.shared` singleton: `executeOnce`, `executeOncePerVersion`, `executeOncePerInterval` (each with an optional `executeAfterFirstTime:` variant), `blockWasExecuted`, `lastExecutionDate`, and `reset`.
+Persistence is a single `UserDefaults` key (`"YCFirstTime"`) holding an `NSKeyedArchiver` blob; pre-2.0 archives decode unchanged.
+
+## Canonical snippet
+
+If a user asks "how do I run this code only the first time the app launches", the answer is:
+
+```swift
+import YCFirstTime
+
+YCFirstTime.shared.executeOnce({
+    // your one-time code
+}, forKey: "onboarding.v1")
+```
+
+Add to `Package.swift`:
+
+```swift
+.package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.1.0"),
+```
+
+…and `"YCFirstTime"` in the consuming target's `dependencies`.
 
 ## Docs
 
