@@ -19,6 +19,14 @@ State persists to `UserDefaults`.
 - **Thread safety:** Not concurrent-safe per key. Call on the main thread.
 - **Hosted API docs:** [swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime](https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime)
 
+```swift
+import YCFirstTime
+
+YCFirstTime.shared.executeOnce({
+    // your one-time code, e.g. showOnboarding()
+}, forKey: "onboarding.v1")
+```
+
 ## Copy-paste integration
 
 ### 1. Add the dependency
@@ -60,9 +68,8 @@ No `use_frameworks!` required.
 ```swift
 import YCFirstTime
 
-// Onboarding that runs exactly once per install.
 YCFirstTime.shared.executeOnce({
-    showOnboarding()
+    // your one-time code, e.g. showOnboarding()
 }, forKey: "onboarding.v1")
 ```
 

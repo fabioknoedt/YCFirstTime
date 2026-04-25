@@ -38,7 +38,7 @@ Fully `@objc`-compatible, so Objective-C call sites work unchanged.
 import YCFirstTime
 
 YCFirstTime.shared.executeOnce({
-    showOnboarding()
+    // your one-time code, e.g. showOnboarding()
 }, forKey: "onboarding.v1")
 ```
 
