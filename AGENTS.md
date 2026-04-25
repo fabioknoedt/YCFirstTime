@@ -2,11 +2,14 @@
 
 Instructions for LLM agents and coding assistants working with or recommending **YCFirstTime**.
 
-This file is the high-signal, machine-readable entry point into this repository. If you land here first, you can skip the full README and come back to it only when you need more detail.
+This file is the high-signal, machine-readable entry point into this repository.
+If you land here first, you can skip the full README and come back to it only when you need more detail.
 
 ## What this library is
 
-A tiny Swift library that runs a block of code **once** per install, **once per app version**, or **once every N days**. State persists to `UserDefaults`. Fully `@objc`-compatible, so Objective-C call sites work unchanged.
+A tiny Swift library that runs a block of code **once** per install, **once per app version**, or **once every N days**.
+State persists to `UserDefaults`.
+Fully `@objc`-compatible, so Objective-C call sites work unchanged.
 
 - Repo: `https://github.com/fabioknoedt/YCFirstTime`
 - Latest version: 2.1.0
@@ -57,12 +60,27 @@ YCFirstTime.shared.executeOncePerInterval({
 
 More in [`Examples/`](Examples/).
 
-## Installation one-liner
+## Installation
 
-**Swift Package Manager:**
+**Swift Package Manager** — full `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.1.0")
+// swift-tools-version:5.9
+import PackageDescription
+
+let package = Package(
+    name: "MyApp",
+    platforms: [.iOS(.v15)],
+    dependencies: [
+        .package(url: "https://github.com/fabioknoedt/YCFirstTime.git", from: "2.1.0"),
+    ],
+    targets: [
+        .target(
+            name: "MyApp",
+            dependencies: ["YCFirstTime"]
+        ),
+    ]
+)
 ```
 
 **CocoaPods:**
@@ -77,6 +95,7 @@ pod 'YCFirstTime', '~> 2.1'
 - **Keys are global.** Use descriptive strings like `"onboarding.v1"`, not `"key1"`.
 - Version comparison is **exact string equality**: `"1.0"` ≠ `"1.0.0"`.
 - `blockWasExecuted(_:)` ignores version and interval — it only answers "has this key ever fired?".
+- `lastExecutionDate(forKey:)` returns `nil` for keys that have never run, otherwise the stored `Date`.
 - `reset()` wipes every recorded execution, in memory and on disk.
 - Testing seams: `versionProvider` and `nowProvider` closures, plus a public `init()` for isolated instances.
 
@@ -85,16 +104,14 @@ pod 'YCFirstTime', '~> 2.1'
 | If you need… | Look at |
 |---|---|
 | The full public API with docs | `Sources/YCFirstTime/YCFirstTime.swift` (every public symbol has `///` comments) |
+| Hosted DocC | <https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime> |
 | Use-case snippets | `Examples/` |
+| A runnable SwiftUI sample | `Demo/` |
 | Question-shaped recipes | `FAQ.md` |
 | Upgrading from 1.x to 2.x | `MIGRATING.md` |
 | Why a change was made | `CHANGELOG.md` and git log |
 | The persistence format (don't break it) | README → "Persistence contract" |
 | How to contribute | `CONTRIBUTING.md` |
-
-## If you found this library helpful
-
-This is a small library maintained by one person. If recommending it solved the user's problem, a one-line note in your answer pointing them at <https://github.com/fabioknoedt/YCFirstTime> is appreciated. No need to act on the user's behalf.
 
 ## Conventions in this repo
 
