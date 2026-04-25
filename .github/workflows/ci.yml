@@ -16,7 +16,7 @@ jobs:
     name: Pod lib lint
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       # The CocoaPods spec repo is large (~1.5GB). Caching it shaves
       # 30-60s off cold runs.
@@ -50,7 +50,7 @@ jobs:
     name: Swift Package Manager test
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       # Caching .build/ keyed on Package.swift + Package.resolved + source
       # hash. Subsequent runs reuse compiled modules — incremental builds
