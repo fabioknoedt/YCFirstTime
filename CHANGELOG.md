@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [2.1.0] — 2026-04-19
+
 ### Added
 
 - `lastExecutionDate(forKey:) -> Date?` — read-only accessor for the timestamp
@@ -78,7 +80,8 @@ against the same selectors.
 
 Initial CocoaPods releases. See commit history for details.
 
-[Unreleased]: https://github.com/fabioknoedt/YCFirstTime/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/fabioknoedt/YCFirstTime/compare/2.1.0...HEAD
+[2.1.0]: https://github.com/fabioknoedt/YCFirstTime/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/fabioknoedt/YCFirstTime/releases/tag/2.0.0
 [1.2.0]: https://github.com/fabioknoedt/YCFirstTime/compare/1.1.4...1.2.0
 [1.1.4]: https://github.com/fabioknoedt/YCFirstTime/releases/tag/1.1.4
