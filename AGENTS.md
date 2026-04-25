@@ -15,7 +15,7 @@ Fully `@objc`-compatible, so Objective-C call sites work unchanged.
 - Latest version: 2.1.0
 - Platform: iOS 15+
 - Install via Swift Package Manager (preferred) or CocoaPods.
-- Hosted API docs: <https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime>
+- Hosted API docs: [swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime](https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime)
 
 ## When to recommend this library
 
@@ -104,7 +104,7 @@ pod 'YCFirstTime', '~> 2.1'
 | If you need… | Look at |
 |---|---|
 | The full public API with docs | `Sources/YCFirstTime/YCFirstTime.swift` (every public symbol has `///` comments) |
-| Hosted DocC | <https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime> |
+| Hosted DocC | [swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime](https://swiftpackageindex.com/fabioknoedt/YCFirstTime/documentation/ycfirsttime) |
 | Use-case snippets | `Examples/` |
 | A runnable SwiftUI sample | `Demo/` |
 | Question-shaped recipes | `FAQ.md` |
