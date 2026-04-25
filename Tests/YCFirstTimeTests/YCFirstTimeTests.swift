@@ -229,6 +229,24 @@ final class YCFirstTimeTests: XCTestCase {
 
     // MARK: - lastExecutionDate
 
+    func test_defaultVersionProvider_invokesBundleLookup() {
+        // Every other test injects versionProvider via makeForTest, so the
+        // default closure (Bundle.main.object lookup at YCFirstTime.swift:79)
+        // never runs and the line shows uncovered.
+        //
+        // Construct a YCFirstTime directly so versionProvider stays at the
+        // init-provided default, then trigger saveExecution — that path
+        // unconditionally calls `versionProvider?()`, which executes the
+        // closure body and exercises the Bundle lookup.
+        let sut = YCFirstTime()
+
+        sut.executeOnce({}, forKey: "default-version-provider-coverage")
+
+        XCTAssertTrue(sut.blockWasExecuted("default-version-provider-coverage"))
+    }
+
+    // MARK: - lastExecutionDate
+
     func test_lastExecutionDate_isNilBeforeAnyRun() {
         let sut = YCFirstTime.makeForTest(version: "1.0")
 
