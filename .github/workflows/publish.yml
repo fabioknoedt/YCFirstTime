@@ -1,44 +1,74 @@
 name: Publish to CocoaPods
 
-# Triggers when a GitHub Release is published. The release's tag name must
-# match the version declared in YCFirstTime.podspec — the verification step
-# below fails the run otherwise, preventing trunk pushes that disagree with
-# the source of truth.
+# Two trigger paths:
 #
-# Manual fallback: workflow_dispatch lets you re-run the publish for the
-# version currently in the podspec, without creating a new release.
+# 1. release: published — fires when a GitHub Release goes live. The workflow
+#    checks out the release's tag (so the podspec at that tag is the one
+#    pushed) and verifies the tag name matches the podspec version.
+#
+# 2. workflow_dispatch — manual trigger from the Actions tab. Pass an
+#    explicit `version` input to publish a specific tag (this is the path
+#    to use when a release event failed and you need to re-attempt). With no
+#    input, the workflow publishes whatever is on the default branch's HEAD.
 
 on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Tag to check out and publish, e.g. "2.0.0". Leave blank to publish the default branch HEAD as-is.'
+        required: false
+        type: string
 
 jobs:
   publish:
     name: pod trunk push
     runs-on: macos-latest
     steps:
+      - name: Resolve checkout ref
+        id: ref
+        run: |
+          set -euo pipefail
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            REF="refs/tags/${{ github.event.inputs.version }}"
+            echo "Using manually-provided tag: ${{ github.event.inputs.version }}"
+          else
+            REF="${{ github.ref }}"
+            echo "Using triggering ref: $REF"
+          fi
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.ref.outputs.ref }}
 
       - name: Show environment
         run: |
           xcodebuild -version
           pod --version
+          echo "Checked-out commit: $(git rev-parse HEAD)"
+          echo "Podspec version line: $(grep -E "spec\.version\s*=" YCFirstTime.podspec | head -1)"
 
-      - name: Verify podspec version matches the release tag
-        # Skipped on workflow_dispatch (no GITHUB_REF_NAME tag context). On a
-        # release event GITHUB_REF_NAME is the tag (e.g. "2.0.0").
-        if: github.event_name == 'release'
+      - name: Verify podspec version matches the target tag
+        # Skipped only when workflow_dispatch was triggered with no version
+        # input — in that case we just push whatever's at HEAD without
+        # asserting a specific tag.
+        if: github.event_name == 'release' || github.event.inputs.version != ''
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME}"
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            TAG="${{ github.event.inputs.version }}"
+          else
+            TAG="${GITHUB_REF_NAME}"
+          fi
           SPEC_VERSION=$(grep -E "spec\.version\s*=" YCFirstTime.podspec \
             | head -1 \
             | sed -E "s/.*['\"]([^'\"]+)['\"].*/\1/")
-          echo "Release tag:    $TAG"
-          echo "Podspec version: $SPEC_VERSION"
+          echo "Target tag:       $TAG"
+          echo "Podspec version:  $SPEC_VERSION"
           if [ "$TAG" != "$SPEC_VERSION" ]; then
-            echo "::error::Release tag '$TAG' does not match podspec version '$SPEC_VERSION'. Bump the podspec on master first, then create the release."
+            echo "::error::Target '$TAG' does not match podspec version '$SPEC_VERSION' at the checked-out commit. The tag may be pointing at the wrong commit — re-tag it on the commit where the podspec actually says '$TAG'."
             exit 1
           fi
 
