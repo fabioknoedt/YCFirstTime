@@ -21,7 +21,7 @@ jobs:
       # The CocoaPods spec repo is large (~1.5GB). Caching it shaves
       # 30-60s off cold runs.
       - name: Cache CocoaPods
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cocoapods
@@ -58,10 +58,10 @@ jobs:
       #
       # We deliberately DO NOT cache ~/Library/Developer/Xcode/DerivedData:
       # `swift test` never writes there (only Xcode does), and starting with
-      # actions/cache@v5 the post-step fails when asked to save a path that
+      # actions/cache@v6 the post-step fails when asked to save a path that
       # doesn't exist.
       - name: Cache SwiftPM build
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .build
           key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift', 'Package.resolved', 'Sources/**/*.swift', 'Tests/**/*.swift') }}
