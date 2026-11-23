@@ -4,6 +4,11 @@ on:
   push:
     branches: [master, main]
   pull_request:
+  # Monthly run so a toolchain change on macos-latest surfaces even when
+  # nothing is merged for months (the library itself changes rarely).
+  schedule:
+    - cron: '17 6 1 * *'
+  workflow_dispatch:
 
 # Cancel in-progress runs on the same ref when new commits arrive.
 # Saves minutes on force-pushes and rapid PR iteration.
